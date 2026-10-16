@@ -13,6 +13,7 @@
         devShells.default = pkgs.mkShell {
           packages = [
             inputs.geng.packages.${system}.default
+            pkgs.just
           ];
         };
       }
