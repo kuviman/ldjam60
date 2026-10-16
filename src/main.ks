@@ -1,5 +1,6 @@
 use (import "./deps.ks").*;
 use (import "./model.ks").*;
+use (import "./util.ks").*;
 
 const Assets = newtype {
     .test :: Model.t,
