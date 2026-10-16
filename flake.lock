@@ -92,15 +92,16 @@
       "inputs": {
         "flake-utils": "flake-utils_2",
         "kast": "kast",
+        "nix-filter": "nix-filter_2",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-25-11": "nixpkgs-25-11"
       },
       "locked": {
-        "lastModified": 1792062422,
-        "narHash": "sha256-yKgvv43lnTyNb8geFPnuny/3r2OvBawaZo/8v3jgEaU=",
+        "lastModified": 1792161469,
+        "narHash": "sha256-K5uEYW0LR3iiSEtAoOeKidO5hSZ9W5/8FQilBqptEIU=",
         "ref": "refs/heads/main",
-        "rev": "30ea9c4ffbee57f90c0dad2ca6a0bf4ef4fa5c36",
-        "revCount": 1,
+        "rev": "0d982da7560e12a3e5d964bd06532ca155f33f66",
+        "revCount": 3,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/kast-lang/geng"
@@ -120,11 +121,11 @@
         "opam-repository": "opam-repository"
       },
       "locked": {
-        "lastModified": 1791971133,
-        "narHash": "sha256-+RzXilkZuVoA4c1IFsU4Vc03NvaiHoUXOoySGVYAycY=",
+        "lastModified": 1792155851,
+        "narHash": "sha256-DkFFjealoalm+yE51gv6COHvtKYpzh6gJVqvynXCBzo=",
         "owner": "kast-lang",
         "repo": "kast",
-        "rev": "085d7d5bb839646a8248032d11a512ef8765d413",
+        "rev": "9476285369e93a659417e8800719c3eb6c1f268f",
         "type": "github"
       },
       "original": {
@@ -157,6 +158,21 @@
         "owner": "numtide",
         "repo": "nix-filter",
         "rev": "59c44d1909c72441144b93cf0f054be7fe764de5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "nix-filter",
+        "type": "github"
+      }
+    },
+    "nix-filter_2": {
+      "locked": {
+        "lastModified": 1791915028,
+        "narHash": "sha256-/vtxTQyuha8ssLhL5a1zsHoZM8R5gwWXZNun5CG+DrQ=",
+        "owner": "numtide",
+        "repo": "nix-filter",
+        "rev": "f54d82f341662c8b5c3ae92e614fe0a8c256b995",
         "type": "github"
       },
       "original": {
