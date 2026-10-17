@@ -5,7 +5,7 @@ use (import "./spatial.ks").*;
 
 module:
 
-const TICK_LERP = 1/60;
+const TICK_LERP :: Float32 = 0.2;
 
 const Car = newtype {
 	.pos_visual :: Vec2,
@@ -30,7 +30,7 @@ impl Car as module = (
         let accelerate :: Float32 = b_to_f32(geng.input.Key.is_pressed(:W)) - b_to_f32(geng.input.Key.is_pressed(:S));
         let steer :: Float32 = b_to_f32(geng.input.Key.is_pressed(:A)) - b_to_f32(geng.input.Key.is_pressed(:D));
 
-        let speed :: Float32 = 1.0;
+        let speed :: Float32 = 0.025;
         let steer_speed :: Float32 = 0.05;
 
 		self^.turn.radians += steer * steer_speed; 
@@ -40,7 +40,8 @@ impl Car as module = (
 		self^.velocity.0 += self^.facing.0 * (accelerate * speed); 
 		self^.velocity.1 += self^.facing.1 * (accelerate * speed); 
 
-		self^.velocity = Vec2.mul(self^.velocity, 0.25);
+		let friction_coeff = 0.95;
+		self^.velocity = Vec2.mul(self^.velocity, friction_coeff);
 		# self^.turn.radians *= 0.8;
 
 		self^.pos = Vec2.add(self^.pos, self^.velocity);
@@ -50,10 +51,10 @@ impl Car as module = (
         Model.draw(&(@current Assets.Ctx)^.tv, Mat4.translate({ 0, 0, 0 }));
 
         self^.pos_visual = self^.pos;
-		# self^.pos_visual = {
-		# 	lerp(self^.pos_visual.0, self^.pos.0, TICK_LERP),
-		# 	lerp(self^.pos_visual.1, self^.pos.1, TICK_LERP),
-		# };
+		self^.pos_visual = {
+			lerp(self^.pos_visual.0, self^.pos.0, TICK_LERP),
+			lerp(self^.pos_visual.1, self^.pos.1, TICK_LERP),
+		};
 
         Model.draw(&(@current Assets.Ctx)^.model_t,
         	Mat4.translate({ ...(self^.pos_visual) ,0 }) |>
@@ -95,7 +96,7 @@ impl World as module = (
 		self^.camera_rotation.radians += angular_dist(self^.camera_rotation, Vec2.arg(self^.car.facing)).radians;
 
 		self^.camera.rotation = {
-			.radians = lerp(self^.camera.rotation.radians, self^.camera_rotation.radians, 0.1)
+			.radians = lerp(self^.camera.rotation.radians, self^.camera_rotation.radians, 0.05)
 		};
 	
 		let offset = Vec2.rotate({2, 0}, self^.camera.rotation);
