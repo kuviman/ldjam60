@@ -1,4 +1,5 @@
 /.direnv/
 /target/
 /result
+*.blend[0-9]*
 *.exe

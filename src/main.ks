@@ -3,7 +3,7 @@ use (import "./model.ks").*;
 use (import "./spatial.ks").*;
 
 const Assets = newtype {
-    .test :: Model.t,
+    .tv :: Model.t,
     .test_sfx :: geng.audio.Buffer,
 };
 
@@ -12,7 +12,7 @@ impl Assets as module = (
 
     const load = () -> Assets => (
         {
-            .test = Model.load("assets/test"),
+            .tv = Model.load("assets/tv"),
             .test_sfx = geng.audio.Buffer.load("assets/test.wav"),
         }
     );
@@ -103,7 +103,7 @@ const Game = newtype {
         const background_color :: Vec4 = { 0.5, 0.5, 0.5, 1 };
         ugli.clear(background_color);
 
-        Model.draw(&self^.assets.test, Mat4.translate({ ...self^.position, 0 }));
+        Model.draw(&self^.assets.tv, Mat4.translate({ ...self^.position, 0 }));
     ),
 });
 
