@@ -44,7 +44,6 @@ impl Map as module = (
 		 	);
 
 		 	ArrayList.push_back(&mut cells, cell);
-			dbg.print(cell);
 		);
 
 		{
