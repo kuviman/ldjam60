@@ -4,8 +4,6 @@ use (import "./assets.ks").*;
 use (import "./spatial.ks").*;
 use (import "./map.ks").*;
 use (import "./util.ks").*;
-
-# CANT USE ".*" ??????
 use (import "./car.ks").*;
 
 module:

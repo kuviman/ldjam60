@@ -3,6 +3,8 @@ use (import "./assets.ks").*;
 use (import "./model.ks").*;
 use (import "./util.ks").*;
 
+module:
+
 const Car = newtype {
 	.pos_visual :: Vec2,
 	.pos :: Vec2,

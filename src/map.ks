@@ -23,8 +23,8 @@ impl Map as module = (
 	const new = (width :: Int32, height :: Int32, cells :: ArrayList.t[Cell]) -> Map => {
 		.width = width,
 		.height = height,
-		.scale = 2.0,
-		.cells = ArrayList.new(),
+		.scale = 4.0,
+		.cells = cells,
 	};
 
 	const from_str = (s :: &str) -> Map => (
@@ -73,7 +73,6 @@ impl Map as module = (
 		# no iteri saj
 		let mut i :: Int32 = 0;
 		for &cell in ArrayList.iter(&self^.cells) do (
-
 			let x = i % self^.width;
 			let y = i / self^.width;
 
