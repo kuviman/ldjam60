@@ -49,8 +49,6 @@ impl Car as module = (
 	);
 
 	const draw = (self :: &mut Car) => (        
-        Model.draw(&(@current Assets.Ctx)^.tv, Mat4.translate({ 0, 0, 0 }));
-
         self^.pos_visual = self^.pos;
 		self^.pos_visual = {
 			lerp(self^.pos_visual.0, self^.pos.0, TICK_LERP),
@@ -88,7 +86,7 @@ impl World as module = (
         },
         .camera_rotation = angle,
         .car = Car.new(),
-        .map = Map.from_str("##--##"),
+        .map = Map.from_str("#---#\n--#--\n#---#"),
 	}); 
 
 	const update = (self :: &mut World) => (
@@ -108,6 +106,7 @@ impl World as module = (
         let framebuffer_size = geng.get_window_size();
         with geng.CameraUniforms.Ctx = geng.CameraUniforms.init(self^.camera, .framebuffer_size);
         
+        Map.draw(&mut self^.map);
         Car.draw(&mut self^.car);
 	);	 
 );

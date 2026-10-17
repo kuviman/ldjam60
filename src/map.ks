@@ -1,4 +1,6 @@
 use (import "./deps.ks").*;
+use (import "./assets.ks").*;
+use (import "./model.ks").*;
 
 module:
 
@@ -43,7 +45,9 @@ impl Map as module = (
 		 		:Empty
 		 	);
 
-		 	ArrayList.push_back(&mut cells, cell);
+		 	if c != '\n' then (
+			 	ArrayList.push_back(&mut cells, cell);
+			);
 		);
 
 		if width == 0 then (
@@ -56,4 +60,29 @@ impl Map as module = (
 			.cells = cells
 		}
 	);
+
+	const update = (self :: &mut Map) => (
+	);
+
+	const draw = (self :: &mut Map) => (
+		# no iteri saj
+		let mut i :: Int32 = 0;
+		let scale = 2.0;
+		for &cell in ArrayList.iter(&self^.cells) do (
+
+			let x = i % self^.width;
+			let y = i / self^.width;
+
+			match cell with (
+				| :Building => (
+				    Model.draw(&(@current Assets.Ctx)^.tv, Mat4.translate({ Int32_to_Float32(x)*scale, Int32_to_Float32(y)*scale, 0 }));
+				)
+				| :Road => ()
+				| :Empty => ()
+			);
+
+			i += 1;
+		);
+	);
+	
 );
