@@ -1,6 +1,7 @@
 use (import "./deps.ks").*;
 use (import "./assets.ks").*;
 use (import "./model.ks").*;
+use (import "./util.ks").*;
 
 module:
 
@@ -23,9 +24,17 @@ impl Map as module = (
 	const new = (width :: Int32, height :: Int32, cells :: ArrayList.t[Cell]) -> Map => {
 		.width = width,
 		.height = height,
-		.scale = 4.0,
+		.scale = 10.0,
 		.cells = cells,
 	};
+
+	# returns world space size
+	const size = (self :: &Map) -> Vec2 => (
+		{
+			Int32_to_Float32(self^.width) * self^.scale,
+			Int32_to_Float32(self^.height) * self^.scale,
+		}
+	);
 
 	const from_str = (s :: &str) -> Map => (
 		let mut cells :: ArrayList.t[Cell] = ArrayList.new();
@@ -66,7 +75,42 @@ impl Map as module = (
 	const update = (self :: &mut Map) => (
 	);
 
-	const car_collides = (self :: &mut Map) => (
+	# in world space
+	const square_intersects = (self :: &Map, pos :: Vec2, size :: Float32) -> Bool => (
+		# car is smaller than buildings
+		# we can get away with testing 4 corners against the grid
+		# so should be fast
+		
+		let x0 = to_cell(self, pos.0 - size);
+		let x1 = to_cell(self, pos.0 + size);
+		let y0 = to_cell(self, pos.1 - size);
+		let y1 = to_cell(self, pos.1 + size);
+
+		   cell_intersects(self, x0, y0)
+		or cell_intersects(self, x1, y0)
+		or cell_intersects(self, x1, y1)
+		or cell_intersects(self, x0, y1)
+	);
+
+	const to_cell = (self :: &Map, v :: Float32) -> Int32 => (
+		Float32_to_Int32(floor(v / self^.scale + 0.5))
+	);
+
+	# in grid space
+	const cell_intersects = (self :: &Map, x :: Int32, y :: Int32) -> Bool => (
+		if x < 0 or y < 0 or x >= self^.width or y >= self^.height then (
+	      false
+	    ) else (
+			let cell = ArrayList.at(
+				&self^.cells,
+				y * self^.width + x
+			);
+
+			match cell^ with (
+				| :Building { ... } => true
+				| _ => false
+			)
+		)
 	);
 
 	const draw = (self :: &mut Map) => (

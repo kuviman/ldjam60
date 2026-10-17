@@ -2,6 +2,7 @@ use (import "./deps.ks").*;
 use (import "./assets.ks").*;
 use (import "./model.ks").*;
 use (import "./util.ks").*;
+use (import "./map.ks").*;
 
 module:
 
@@ -24,7 +25,7 @@ impl Car as module = (
 		.turn = Angle.from_degrees(0),
 	};
 
-	const update = (self :: &mut Car) => (
+	const update = (self :: &mut Car, map :: &Map) => (
         let accelerate :: Float32 = b_to_f32(geng.input.Key.is_pressed(:W)) - b_to_f32(geng.input.Key.is_pressed(:S));
         let steer :: Float32 = b_to_f32(geng.input.Key.is_pressed(:A)) - b_to_f32(geng.input.Key.is_pressed(:D));
 
@@ -41,7 +42,35 @@ impl Car as module = (
 		let friction_coeff = 0.95;
 		self^.velocity = Vec2.mul(self^.velocity, friction_coeff);
 
-		self^.pos = Vec2.add(self^.pos, self^.velocity);
+
+		# good ol sara spalding's collision code
+		let car_size = 1.0;
+		if Map.square_intersects(map, Vec2.add(self^.pos, { self^.velocity.0, 0 }), car_size) then (
+			while abs(self^.velocity.0) > 0.1 do (
+				self^.velocity.0 *= 0.5;
+				if (not Map.square_intersects(map, Vec2.add(self^.pos, {self^.velocity.0, 0}), car_size)) then (
+					self^.pos.0 += self^.velocity.0;
+				);
+			);
+						
+			self^.velocity.0 = 0;
+		);
+
+		self^.pos.0 += self^.velocity.0;
+
+		if Map.square_intersects(map, Vec2.add(self^.pos, { 0, self^.velocity.1 }), car_size ) then (
+			while abs(self^.velocity.1) > 0.1 do (
+				self^.velocity.1 *= 0.5;
+
+				if (not Map.square_intersects(map, Vec2.add(self^.pos, {0, self^.velocity.1}), car_size)) then (
+					self^.pos.1 += self^.velocity.1;
+				);
+			);	
+
+			self^.velocity.1 = 0;
+		);
+
+		self^.pos.1 += self^.velocity.1;
 	);
 
 	const draw = (self :: &mut Car) => (        

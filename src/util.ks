@@ -35,3 +35,9 @@ const fmod = (a :: Float32, b :: Float32) -> Float32 => (
     @native "#include <math.h>";
     @native "fmod(\(a),\(b))"
 );
+
+const floor = (x :: Float32) -> Float32 => (
+	@native "#include <math.h>";
+	@native "floorf(\(x))"
+);
+

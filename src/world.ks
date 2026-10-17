@@ -20,10 +20,10 @@ impl World as module = (
 
 	const new = () -> World => (
 		let angle = Angle.from_degrees(90);
-	    let map = Map.from_str("#---#\n--#--\n#---#");
+	    let map = Map.from_str("#---#\n-----\n#---#");
 	    let spawn :: Vec2 = {
-	    	Int32_to_Float32(map.width)/2,
-	    	Int32_to_Float32(map.height)/2,
+	    	Int32_to_Float32(map.width)/2 * map.scale,
+	    	Int32_to_Float32(map.height)/2 * map.scale,
 	    };
 	{
         .camera = {
@@ -39,7 +39,7 @@ impl World as module = (
 	}); 
 
 	const update = (self :: &mut World) => (
-        Car.update(&mut self^.car);
+        Car.update(&mut self^.car, &self^.map);
 	);
 
 	const draw = (self :: &mut World) => (
