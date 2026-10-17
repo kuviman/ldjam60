@@ -46,6 +46,10 @@ impl Map as module = (
 		 	ArrayList.push_back(&mut cells, cell);
 		);
 
+		if width == 0 then (
+			width = ArrayList.length(&cells);
+		);
+
 		{
 			.width = width,
 			.height = ArrayList.length(&cells)/width,

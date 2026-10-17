@@ -88,7 +88,7 @@ impl World as module = (
         },
         .camera_rotation = angle,
         .car = Car.new(),
-        .map = Map.from_str("##--##")
+        .map = Map.from_str("##--##"),
 	}); 
 
 	const update = (self :: &mut World) => (
