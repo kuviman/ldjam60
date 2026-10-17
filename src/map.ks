@@ -5,7 +5,7 @@ use (import "./model.ks").*;
 module:
 
 const Cell = newtype (
-	| :Building
+	| :Building { .height :: Int32 }
 	| :Road
 	| :Empty
 );
@@ -40,7 +40,7 @@ impl Map as module = (
 
 			# idk if match works on char		
 			let cell = if c == '#' then (
-		 		:Building
+		 		:Building { .height = std.random.gen_range(.min = 1, .max = 4)}
 		 	) else if c == '-' then (
 		 		:Road
 		 	) else (
@@ -77,13 +77,15 @@ impl Map as module = (
 			let y = i / self^.width;
 
 			match cell with (
-				| :Building => (
-				    Model.draw(&(@current Assets.Ctx)^.tv,
-				    	Mat4.translate({
-					    	Int32_to_Float32(x)*self^.scale,
-					    	Int32_to_Float32(y)*self^.scale,
-					    	0,
-					    })
+				| :Building { .height = height } => (
+			    	for z in 0..height do (
+					    Model.draw(&(@current Assets.Ctx)^.tv,
+					    	Mat4.translate({
+						    	Int32_to_Float32(x)*self^.scale,
+						    	Int32_to_Float32(y)*self^.scale,
+						    	Int32_to_Float32(z)*self^.scale,
+						    })
+				    	);
 					);
 				)
 				| :Road => ()
