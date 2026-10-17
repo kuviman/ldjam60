@@ -19,9 +19,9 @@ const Car = newtype {
 impl Car as module = (
 	module:
 	
-	const new = () -> Car => {
-		.pos = { 0, 0 },
-		.pos_visual = { 0, 0 },
+	const new = (pos :: Vec2) -> Car => {
+		.pos = pos,
+		.pos_visual = pos,
 		.facing = { 0, 0 },
 		.velocity = { 0, 0},
 		.turn = Angle.from_degrees(0),
@@ -75,7 +75,12 @@ impl World as module = (
 	module:
 
 	const new = () -> World => (
-	let angle = Angle.from_degrees(90);
+		let angle = Angle.from_degrees(90);
+	    let map = Map.from_str("#---#\n--#--\n#---#");
+	    let spawn :: Vec2 = {
+	    	Int32_to_Float32(map.width)/2,
+	    	Int32_to_Float32(map.height)/2,
+	    };
 	{
         .camera = {
             .position = { 0, 0, 0 },
@@ -85,8 +90,8 @@ impl World as module = (
             .fov = Angle.from_degrees(90),
         },
         .camera_rotation = angle,
-        .car = Car.new(),
-        .map = Map.from_str("#---#\n--#--\n#---#"),
+        .car = Car.new(spawn),
+        .map = map,
 	}); 
 
 	const update = (self :: &mut World) => (
