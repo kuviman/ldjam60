@@ -10,6 +10,8 @@ const Ray = newtype {
 };
 
 impl Ray as module = (
+	module:
+
 	const extend = (ray :: &mut Ray, len :: Float32) => with_return (	
 		let pos :: Vec3 = ray^.position;
 		let len :: Float32 = Vec3.length(pos);
@@ -28,6 +30,8 @@ const Cuboid = newtype {
 };
 
 impl Cuboid as module = (
+	module:
+
 	const new = (size :: Vec3) -> Cuboid => { .half_size = size };
 
 	const overlaps = (
