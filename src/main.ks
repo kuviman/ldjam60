@@ -4,6 +4,7 @@ use (import "./spatial.ks").*;
 
 const Assets = newtype {
     .tv :: Model.t,
+    .model_t :: Model.t,
     .test_sfx :: geng.audio.Buffer,
 };
 
@@ -13,6 +14,7 @@ impl Assets as module = (
     const load = () -> Assets => (
         {
             .tv = Model.load("assets/tv"),
+            .model_t = Model.load("assets/model_t"),
             .test_sfx = geng.audio.Buffer.load("assets/test.wav"),
         }
     );
@@ -103,7 +105,8 @@ const Game = newtype {
         const background_color :: Vec4 = { 0.5, 0.5, 0.5, 1 };
         ugli.clear(background_color);
 
-        Model.draw(&self^.assets.tv, Mat4.translate({ ...self^.position, 0 }));
+        Model.draw(&self^.assets.tv, Mat4.translate({ ...Vec2.add(self^.position, { 4, 0 }), 0 }));
+        Model.draw(&self^.assets.model_t, Mat4.translate({ ...self^.position, 0 }));
     ),
 });
 
