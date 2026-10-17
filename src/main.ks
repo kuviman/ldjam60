@@ -8,6 +8,7 @@ const Game = newtype {
     .assets :: Assets,
     .mouse_captured :: Bool,
     .world :: World,
+    .tick_timer :: Float32,
 };
 
 @eval (impl Game as geng.App = {
@@ -16,9 +17,17 @@ const Game = newtype {
         .assets = Assets.load(),
         .mouse_captured = false,
         .world = World.new(),
+        .tick_timer = 0,
     },
     .update = (self :: &mut Game, delta_time :: Float32) => (
-        World.update(&mut self^.world);
+        self^.tick_timer += delta_time;
+
+        # 60 tps
+        let tick_time :: Float32 = 1/60;
+        if self^.tick_timer > tick_time then (
+            World.update(&mut self^.world);
+            self^.tick_timer = 0;
+        );
     ),
     .handle_event = (self :: &mut Game, event :: geng.Event) => (
         match event with (
@@ -59,6 +68,7 @@ const Game = newtype {
 
         with Assets.Ctx = &self^.assets;
         with Model.Renderer.Ctx = &self^.model_renderer;
+
         World.draw(&mut self^.world);
     ),
 });
