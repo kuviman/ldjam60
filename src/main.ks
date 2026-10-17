@@ -54,6 +54,7 @@ const Game = newtype {
             | :PointerPress _ => (
                 self^.mouse_captured = true;
                 SDL.SetWindowRelativeMouseMode((@current geng.Context).window, true);
+
             )
             | :PointerRelease _ => (
                 self^.mouse_captured = false;

@@ -2,6 +2,7 @@ use (import "./deps.ks").*;
 use (import "./model.ks").*;
 use (import "./assets.ks").*;
 use (import "./spatial.ks").*;
+use (import "./map.ks").*;
 
 module:
 
@@ -69,6 +70,7 @@ const World = newtype {
     .camera :: geng.Camera,
     .camera_rotation :: Angle,
     .car :: Car,
+    .map :: Map,
 };
 
 impl World as module = (
@@ -86,6 +88,7 @@ impl World as module = (
         },
         .camera_rotation = angle,
         .car = Car.new(),
+        .map = Map.from_str("##--##")
 	}); 
 
 	const update = (self :: &mut World) => (
