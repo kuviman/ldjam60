@@ -2,6 +2,7 @@ use (import "./deps.ks").*;
 use (import "./assets.ks").*;
 use (import "./world.ks").*;
 use (import "./model.ks").*;
+use (import "./util.ks").*;
 
 const Game = newtype {
     .model_renderer :: Model.Renderer,
@@ -22,9 +23,7 @@ const Game = newtype {
     .update = (self :: &mut Game, delta_time :: Float32) => (
         self^.tick_timer += delta_time;
 
-        # 60 tps
-        let tick_time :: Float32 = 1/60;
-        if self^.tick_timer > tick_time then (
+        if self^.tick_timer > PHYSICS_TPS then (
             World.update(&mut self^.world);
             self^.tick_timer = 0;
         );
@@ -38,19 +37,7 @@ const Game = newtype {
                 };
                 geng.audio.play_with(&self^.assets.test_sfx, options);
             )
-            | :MouseMove { .position, .delta } => (
-                # if self^.mouse_captured then (
-                    # let { window_width, window_height } = geng.get_window_size();
-                    # self^.camera.rotation = Angle.sub(
-                    #     self^.camera.rotation,
-                    #     Angle.mul(self^.camera.fov, delta.0 / window_width),
-                    # );
-                    # self^.camera.attack = Angle.sub(
-                    #     self^.camera.attack,
-                    #     Angle.mul(self^.camera.fov, delta.1 / window_width),
-                    # );
-                # );
-            )
+            | :MouseMove { .position, .delta } => ()
             | :PointerPress _ => (
                 self^.mouse_captured = true;
                 SDL.SetWindowRelativeMouseMode((@current geng.Context).window, true);

@@ -13,15 +13,17 @@ const Cell = newtype (
 const Map = newtype {
 	.width :: Int32,
 	.height :: Int32,
+	.scale :: Float32,
 	.cells :: ArrayList.t[Cell],
 };
 
 impl Map as module = (
 	module:
 
-	const new = (width :: Int32, height :: Int32) -> Map => {
+	const new = (width :: Int32, height :: Int32, cells :: ArrayList.t[Cell]) -> Map => {
 		.width = width,
 		.height = height,
+		.scale = 2.0,
 		.cells = ArrayList.new(),
 	};
 
@@ -54,20 +56,22 @@ impl Map as module = (
 			width = ArrayList.length(&cells);
 		);
 
-		{
-			.width = width,
-			.height = ArrayList.length(&cells)/width,
-			.cells = cells
-		}
+		Map.new (
+			width,
+			ArrayList.length(&cells)/width,
+			cells,
+		)
 	);
 
 	const update = (self :: &mut Map) => (
 	);
 
+	const car_collides = (self :: &mut Map) => (
+	);
+
 	const draw = (self :: &mut Map) => (
 		# no iteri saj
 		let mut i :: Int32 = 0;
-		let scale = 2.0;
 		for &cell in ArrayList.iter(&self^.cells) do (
 
 			let x = i % self^.width;
@@ -75,7 +79,13 @@ impl Map as module = (
 
 			match cell with (
 				| :Building => (
-				    Model.draw(&(@current Assets.Ctx)^.tv, Mat4.translate({ Int32_to_Float32(x)*scale, Int32_to_Float32(y)*scale, 0 }));
+				    Model.draw(&(@current Assets.Ctx)^.tv,
+				    	Mat4.translate({
+					    	Int32_to_Float32(x)*self^.scale,
+					    	Int32_to_Float32(y)*self^.scale,
+					    	0,
+					    })
+					);
 				)
 				| :Road => ()
 				| :Empty => ()
