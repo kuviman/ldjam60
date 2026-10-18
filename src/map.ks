@@ -122,6 +122,7 @@ impl Map as module = (
 
 			match cell with (
 				| :Building { .height = height } => (
+                    let height = 1;
 			    	for z in 0..height do (
 					    Model.draw(&(@current Assets.Ctx)^.building,
 					    	Mat4.translate({
@@ -132,7 +133,15 @@ impl Map as module = (
 				    	);
 					);
 				)
-				| :Road => ()
+				| :Road => (
+                    Model.draw(&(@current Assets.Ctx)^.road.connected,
+                        Mat4.translate({
+                            Int32_to_Float32(x)*self^.scale,
+                            Int32_to_Float32(y)*self^.scale,
+                            0,
+                        })
+                    );
+                )
 				| :Empty => ()
 			);
 

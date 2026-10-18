@@ -51,7 +51,7 @@ const Game = newtype {
         );
     ),
     .draw = (self :: &mut Game) => (
-        const background_color :: Vec4 = { 0.5, 0.5, 0.5, 1 };
+        const background_color :: Vec4 = { 0.8, 0.8, 1.0, 1 };
         ugli.clear(background_color);
 
         with Assets.Ctx = &self^.assets;
