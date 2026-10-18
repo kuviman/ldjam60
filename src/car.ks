@@ -7,10 +7,11 @@ use (import "./map.ks").*;
 module:
 
 const Car = newtype {
-	.pos_visual :: Vec2,
+	.prev_pos :: Vec2,
 	.pos :: Vec2,
 	.facing :: Vec2,
 	.velocity :: Vec2,
+	.prev_turn :: Angle,
 	.turn :: Angle,
     .steer :: Float32,
     .wheel_rotation :: Angle,
@@ -20,16 +21,20 @@ impl Car as module = (
 	module:
 	
 	const new = (pos :: Vec2) -> Car => {
+		.prev_pos = pos,
 		.pos = pos,
-		.pos_visual = pos,
 		.facing = { 0, 0 },
 		.velocity = { 0, 0},
 		.turn = Angle.from_degrees(0),
+		.prev_turn = Angle.from_degrees(0),
         .wheel_rotation = Angle.from_degrees(0),
         .steer = 0,
 	};
 
 	const update = (self :: &mut Car, map :: &Map) => (
+		self^.prev_pos = self^.pos;
+		self^.prev_turn = self^.turn;
+		
         let accelerate :: Float32 = b_to_f32(geng.input.Key.is_pressed(:W)) - b_to_f32(geng.input.Key.is_pressed(:S));
         let steer :: Float32 = b_to_f32(geng.input.Key.is_pressed(:A)) - b_to_f32(geng.input.Key.is_pressed(:D));
         self^.steer = steer;
@@ -83,18 +88,21 @@ impl Car as module = (
         );
 	);
 
-	const draw = (self :: &mut Car) => (        
-        let assets = @current Assets.Ctx;
-        self^.pos_visual = self^.pos;
-		self^.pos_visual = {
-			lerp(self^.pos_visual.0, self^.pos.0, PHYSICS_LERP),
-			lerp(self^.pos_visual.1, self^.pos.1, PHYSICS_LERP),
-		};
+    const visual_pos = (self :: &Car, alpha :: Float32) -> Vec2 => {
+        lerp(self^.prev_pos.0, self^.pos.0, alpha),
+        lerp(self^.prev_pos.1, self^.pos.1, alpha),
+    };
 
-        let matrix = Mat4.translate({ ...(self^.pos_visual) ,0 }) |>
-	        Mat4.mul_mat(
-	        	Mat4.rotate_z(Vec2.arg(self^.facing))
-	        );
+    const visual_turn = (self :: &Car, alpha :: Float32) -> Angle => {
+            .radians = self^.prev_turn.radians + angular_dist(self^.prev_turn, self^.turn).radians * alpha,
+    };
+
+	const draw = (self :: &mut Car, alpha :: Float32) => (        
+        let assets = @current Assets.Ctx;
+
+		let matrix = Mat4.translate({ ...visual_pos(&self^, alpha), 0 }) |>
+                     Mat4.mul_mat(Mat4.rotate_z(visual_turn(&self^, alpha)));
+
         Model.draw(&assets^.model_t.body, matrix);
 
         const WHEEL_DX_BACK :: Float32 = -0.608026;

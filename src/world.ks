@@ -54,7 +54,7 @@ impl World as module = (
         Car.update(&mut self^.car, &self^.map);
 	);
 
-	const draw = (self :: &mut World, .update_camera :: Bool) => (
+	const draw = (self :: &mut World, .update_camera :: Bool, alpha :: Float32) => (
         if update_camera then (
             self^.camera_rotation.radians += angular_dist(self^.camera_rotation, Vec2.arg(self^.car.facing)).radians;
             self^.camera.rotation = {
@@ -65,12 +65,12 @@ impl World as module = (
             self^.camera_rotation = self^.camera.rotation;
         );
 	
-		self^.camera.position = { ...self^.car.pos, 1.5 };
+		self^.camera.position = { ...Car.visual_pos(&self^.car, alpha), 1.5 };
 
         let framebuffer_size = geng.get_window_size();
         with geng.CameraUniforms.Ctx = geng.CameraUniforms.init(self^.camera, .framebuffer_size);
         
         Map.draw(&mut self^.map);
-        Car.draw(&mut self^.car);
+        Car.draw(&mut self^.car, alpha);
 	);	 
 );

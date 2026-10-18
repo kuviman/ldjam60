@@ -23,9 +23,9 @@ const Game = newtype {
     .update = (self :: &mut Game, delta_time :: Float32) => (
         self^.tick_timer += delta_time;
 
-        if self^.tick_timer > PHYSICS_TPS then (
+        while self^.tick_timer > PHYSICS_TPS do (
             World.update(&mut self^.world);
-            self^.tick_timer = 0;
+            self^.tick_timer -= PHYSICS_TPS;
         );
     ),
     .handle_event = (self :: &mut Game, event :: geng.Event) => (
@@ -70,7 +70,8 @@ const Game = newtype {
         with Assets.Ctx = &self^.assets;
         with Model.Renderer.Ctx = &self^.model_renderer;
 
-        World.draw(&mut self^.world, .update_camera = not self^.mouse_captured);
+        let alpha = self^.tick_timer / PHYSICS_TPS;
+        World.draw(&mut self^.world, .update_camera = not self^.mouse_captured, alpha);
     ),
 });
 

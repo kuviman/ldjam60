@@ -4,7 +4,6 @@ module:
 
 # ANNOYING BUG PLS FIX (siiix seeeveeen)
 const PHYSICS_TPS :: Float32 =  0.0166666666667; #1.0/60.0;
-const PHYSICS_LERP :: Float32 = 0.2;
 
 const b_to_f32 = (b :: Bool) -> Float32 => (
 	if b then 1 else 0
