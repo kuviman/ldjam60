@@ -1,7 +1,6 @@
 use (import "./deps.ks").*;
 use (import "./model.ks").*;
 use (import "./assets.ks").*;
-use (import "./spatial.ks").*;
 use (import "./map.ks").*;
 use (import "./util.ks").*;
 use (import "./car.ks").*;
