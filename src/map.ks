@@ -3,10 +3,20 @@ use (import "./assets.ks").*;
 use (import "./model.ks").*;
 use (import "./util.ks").*;
 
+const DIRECTIONS :: ArrayList.t[type { Int32, Int32 }] = (
+    let mut dirs = ArrayList.new();
+    &mut dirs |> ArrayList.push_back({ -1 :: Int32, 0 :: Int32 });
+    &mut dirs |> ArrayList.push_back({ 1, 0 });
+    &mut dirs |> ArrayList.push_back({ 0, -1 });
+    &mut dirs |> ArrayList.push_back({ 0, 1 });
+    dirs
+);
+
 module:
 
 const Cell = newtype (
-	| :Building { .height :: Int32 }
+	| :Building { .height :: Int32, .direction :: Angle }
+    | :Trees
 	| :Road
 	| :Empty
 );
@@ -49,7 +59,14 @@ impl Map as module = (
 
 			# idk if match works on char		
 			let cell = if c == '#' then (
-		 		:Building { .height = std.random.gen_range(.min = 1, .max = 4)}
+                if std.random.gen_range[Int32](.min = 1, .max = 100) < 10 then (
+                    :Trees
+                ) else (
+                    :Building {
+                        .height = std.random.gen_range(.min = 1, .max = 4),
+                        .direction = Angle.from_degrees(0),
+                    }
+                )
 		 	) else if c == '-' then (
 		 		:Road
 		 	) else (
@@ -64,12 +81,40 @@ impl Map as module = (
 		if width == 0 then (
 			width = ArrayList.length(&cells);
 		);
-
-		Map.new (
+        let height = ArrayList.length(&cells)/width;
+		let mut map = Map.new (
 			width,
-			ArrayList.length(&cells)/width,
+			height,
 			cells,
-		)
+		);
+
+        for x in 0..width do (
+            for y in 0..height do (
+                match get_cell_mut(&mut map, x, y) with (
+                    | :Some cell => (
+                        if cell^ is :Building ref mut building then (
+                            let mut road_near = false;
+                            for &dir in ArrayList.iter(&DIRECTIONS) do (
+                                if get_cell(&map, x + dir.0, y + dir.1) is :Road then (
+                                    building^.direction = Vec2.arg({
+                                        Int32_to_Float32(dir.0),
+                                        Int32_to_Float32(dir.1),
+                                    });
+                                    road_near = true;
+                                    break;
+                                );
+                            );
+                            if not road_near then (
+                                cell^ = :Trees;
+                            );
+                        );
+                    )
+                    | _ => ()
+                );
+            );
+        );
+
+        map
 	);
 
 	const update = (self :: &mut Map) => (
@@ -96,21 +141,35 @@ impl Map as module = (
 		Float32_to_Int32(floor(v / self^.scale + 0.5))
 	);
 
-	# in grid space
-	const cell_intersects = (self :: &Map, x :: Int32, y :: Int32) -> Bool => (
+    const get_cell_mut = (self :: &mut Map, x :: Int32, y :: Int32) -> Option.t[type (&mut Cell)] => (
 		if x < 0 or y < 0 or x >= self^.width or y >= self^.height then (
-	      false
+	        :None
+	    ) else (
+			:Some ArrayList.at_mut(
+				&mut self^.cells,
+				y * self^.width + x
+			)
+        )
+    );
+    const get_cell = (self :: &Map, x :: Int32, y :: Int32) -> Cell => (
+		if x < 0 or y < 0 or x >= self^.width or y >= self^.height then (
+	      :Empty
 	    ) else (
 			let cell = ArrayList.at(
 				&self^.cells,
 				y * self^.width + x
 			);
+            cell^
+        )
+    );
 
-			match cell^ with (
-				| :Building { ... } => true
-				| _ => false
-			)
-		)
+	# in grid space
+	const cell_intersects = (self :: &Map, x :: Int32, y :: Int32) -> Bool => (
+        match get_cell(self, x, y) with (
+            | :Building { ... } => true
+            | :Trees => true
+            | _ => false
+        )
 	);
 
 	const draw = (self :: &mut Map) => (
@@ -120,26 +179,30 @@ impl Map as module = (
 			let x = i % self^.width;
 			let y = i / self^.width;
 
+            let matrix = Mat4.translate({
+                Int32_to_Float32(x)*self^.scale,
+                Int32_to_Float32(y)*self^.scale,
+                0,
+            });
+
 			match cell with (
-				| :Building { .height = height } => (
+				| :Building { .height, .direction } => (
                     let height = 1;
 			    	for z in 0..height do (
 					    Model.draw(&(@current Assets.Ctx)^.building,
-					    	Mat4.translate({
-						    	Int32_to_Float32(x)*self^.scale,
-						    	Int32_to_Float32(y)*self^.scale,
-						    	Int32_to_Float32(z)*self^.scale, # half extents
-						    })
+					    	matrix
+                                |> Mat4.mul_mat(Mat4.rotate_z(direction))
 				    	);
 					);
 				)
+				| :Trees => (
+                    Model.draw(&(@current Assets.Ctx)^.trees,
+                        matrix
+                    );
+                )
 				| :Road => (
                     Model.draw(&(@current Assets.Ctx)^.road.connected,
-                        Mat4.translate({
-                            Int32_to_Float32(x)*self^.scale,
-                            Int32_to_Float32(y)*self^.scale,
-                            0,
-                        })
+                        matrix
                     );
                 )
 				| :Empty => ()
