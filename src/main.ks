@@ -35,7 +35,7 @@ const Game = newtype {
                     .@"loop" = false,
                     .volume = 1,
                 };
-                geng.audio.play_with(&self^.assets.test_sfx, options);
+                geng.audio.play_with(&self^.assets.honk, options);
             )
             | :MouseMove { .position, .delta } => (
                 let camera = &mut self^.world.camera;
