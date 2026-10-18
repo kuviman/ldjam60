@@ -5,6 +5,8 @@ use (import "./spatial.ks").*;
 use (import "./map.ks").*;
 use (import "./util.ks").*;
 use (import "./car.ks").*;
+use (import "./pickup.ks").*;
+use (import "./util.ks").*;
 
 module:
 
@@ -13,12 +15,14 @@ const World = newtype {
     .camera_rotation :: Angle,
     .car :: Car,
     .map :: Map,
+    .pickup :: Option.t[Pickup],
 };
 
 impl World as module = (
 	module:
 
 	const new = () -> World => (
+		srand();
 		let angle = Angle.from_degrees(90);
 
 		# DO NOT QUESTION MY LEVEL EDITOR
@@ -27,8 +31,8 @@ impl World as module = (
 		&mut sb |> std.StringBuilder.add_str("#------#\n");
 		&mut sb |> std.StringBuilder.add_str("#-####-#\n");
 		&mut sb |> std.StringBuilder.add_str("#----#-#\n");
-		&mut sb |> std.StringBuilder.add_str("#-g--#-#\n");
-		&mut sb |> std.StringBuilder.add_str("#---##-#\n");
+		&mut sb |> std.StringBuilder.add_str("##g--#-#\n");
+		&mut sb |> std.StringBuilder.add_str("###-##-#\n");
 		&mut sb |> std.StringBuilder.add_str("#------#\n");
 		&mut sb |> std.StringBuilder.add_str("########\n");
 		
@@ -48,6 +52,7 @@ impl World as module = (
         .camera_rotation = angle,
         .car = Car.new(spawn),
         .map = map,
+        .pickup = :None,
 	}); 
 
 	const update = (self :: &mut World) => (

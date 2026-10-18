@@ -40,3 +40,6 @@ const floor = (x :: Float32) -> Float32 => (
 	@native "floorf(\(x))"
 );
 
+const srand = () => (
+	@native "srand(time(NULL))";	
+);

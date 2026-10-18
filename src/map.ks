@@ -2,6 +2,7 @@ use (import "./deps.ks").*;
 use (import "./assets.ks").*;
 use (import "./model.ks").*;
 use (import "./util.ks").*;
+use (import "./pickup.ks").*;
 
 const DIRECTIONS :: ArrayList.t[type { Int32, Int32 }] = (
     let mut dirs = ArrayList.new();
@@ -15,7 +16,12 @@ const DIRECTIONS :: ArrayList.t[type { Int32, Int32 }] = (
 module:
 
 const Cell = newtype (
-	| :Building { .height :: Int32, .direction :: Angle }
+	| :Building {
+		.height :: Int32,
+		.direction :: Angle,
+		.road_near :: Bool,
+		.pickup :: Option.t[Pickup]
+	}
 	| :Garage
     | :Trees
 	| :Road
@@ -66,6 +72,8 @@ impl Map as module = (
                     :Building {
                         .height = std.random.gen_range(.min = 1, .max = 4),
                         .direction = Angle.from_degrees(0),
+                        .road_near = false,
+                        .pickup = :None,
                     }
                 )
 		 	) else if c == '-' then (
@@ -96,18 +104,19 @@ impl Map as module = (
                 match get_cell_mut(&mut map, x, y) with (
                     | :Some cell => (
                         if cell^ is :Building ref mut building then (
-                            let mut road_near = false;
                             for &dir in ArrayList.iter(&DIRECTIONS) do (
                                 if get_cell(&map, x + dir.0, y + dir.1) is :Road then (
                                     building^.direction = Vec2.arg({
                                         Int32_to_Float32(dir.0),
                                         Int32_to_Float32(dir.1),
                                     });
-                                    road_near = true;
+                                    
+                                    building^.road_near = true;
                                     break;
                                 );
                             );
-                            if not road_near then (
+
+                            if not building^.road_near then (
                                 cell^ = :Trees;
                             );
                         );
@@ -116,6 +125,26 @@ impl Map as module = (
                 );
             );
         );
+
+		let mut pickups = ArrayList.new();
+		ArrayList.push_back(&mut pickups, :Tv);
+
+		while ( ArrayList.length(&pickups) > 0 ) do (
+			let x :: Int32 = std.random.gen_range[Int32](.min = 0, .max = width-1);
+			let y :: Int32 = std.random.gen_range[Int32](.min = 0, .max = height-1);
+
+			match get_cell_mut(&mut map, x, y) with (
+				| :Some cell => (
+                    if cell^ is :Building ref mut building then (
+						if building^.road_near and Option.is_none(&building^.pickup) then (
+							building^.pickup = :Some ArrayList.pop_back(&mut pickups);
+						);
+                    );
+				)
+				| _ => ()
+			)
+		
+		);	
 
         map
 	);
@@ -273,7 +302,7 @@ impl Map as module = (
             });
 
 			match cell with (
-				| :Building { .height, .direction } => (
+				| :Building { .height, .direction, .pickup, ... } => (
                     let height = 1;
 			    	for z in 0..height do (
 					    Model.draw(&assets^.building,
@@ -281,6 +310,18 @@ impl Map as module = (
                                 |> Mat4.mul_mat(Mat4.rotate_z(direction))
 				    	);
 					);
+
+					match pickup with (
+						| :Some :Tv => (
+						    Model.draw(&assets^.tv,
+						    	matrix
+	                            |> Mat4.mul_mat(Mat4.rotate_z(direction))
+					    		|> Mat4.mul_mat(Mat4.translate({4, -1, 0.3}))
+					    	);
+						)
+						| _ => ()
+					);
+					
 				)
 				| :Garage => (
                     Model.draw(&assets^.garage,
