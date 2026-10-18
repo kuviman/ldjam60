@@ -10,6 +10,7 @@ const Assets = newtype {
     .trees :: Model.t,
     .road :: {
         .connected :: Model.t,
+        .disconnected :: Model.t,
     },
     .test_sfx :: geng.audio.Buffer,
 };
@@ -27,6 +28,7 @@ impl Assets as module = (
             .trees = Model.load("assets/trees"),
             .road = {
                 .connected = Model.load("assets/road/connected"),
+                .disconnected = Model.load("assets/road/disconnected"),
             },
             .test_sfx = geng.audio.Buffer.load("assets/test.wav"),
         }

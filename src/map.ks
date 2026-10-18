@@ -173,6 +173,7 @@ impl Map as module = (
 	);
 
 	const draw = (self :: &mut Map) => (
+        let assets = @current Assets.Ctx;
 		# no iteri saj
 		let mut i :: Int32 = 0;
 		for &cell in ArrayList.iter(&self^.cells) do (
@@ -189,20 +190,31 @@ impl Map as module = (
 				| :Building { .height, .direction } => (
                     let height = 1;
 			    	for z in 0..height do (
-					    Model.draw(&(@current Assets.Ctx)^.building,
+					    Model.draw(&assets^.building,
 					    	matrix
                                 |> Mat4.mul_mat(Mat4.rotate_z(direction))
 				    	);
 					);
 				)
 				| :Trees => (
-                    Model.draw(&(@current Assets.Ctx)^.trees,
+                    Model.draw(&assets^.trees,
                         matrix
                     );
                 )
 				| :Road => (
-                    Model.draw(&(@current Assets.Ctx)^.road.connected,
-                        matrix
+                    for &dir in ArrayList.iter(&DIRECTIONS) do (
+                        let model = match get_cell(&self^, x + dir.0, y + dir.1) with (
+                            | :Road => &assets^.road.connected
+                            | _ => &assets^.road.disconnected
+                        );
+                        let rotation = Vec2.arg({
+                            Int32_to_Float32(dir.0),
+                            Int32_to_Float32(dir.1),
+                        });
+                        Model.draw(model,
+                            matrix
+                                |> Mat4.mul_mat(Mat4.rotate_z(rotation))
+                        );
                     );
                 )
 				| :Empty => ()

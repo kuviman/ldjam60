@@ -37,7 +37,20 @@ const Game = newtype {
                 };
                 geng.audio.play_with(&self^.assets.test_sfx, options);
             )
-            | :MouseMove { .position, .delta } => ()
+            | :MouseMove { .position, .delta } => (
+                let camera = &mut self^.world.camera;
+                if self^.mouse_captured then (
+                    let { window_width, window_height } = geng.get_window_size();
+                    camera^.rotation = Angle.sub(
+                        camera^.rotation,
+                        Angle.mul(camera^.fov, delta.0 / window_width),
+                    );
+                    camera^.attack = Angle.sub(
+                        camera^.attack,
+                        Angle.mul(camera^.fov, delta.1 / window_width),
+                    );
+                );
+            )
             | :PointerPress _ => (
                 self^.mouse_captured = true;
                 SDL.SetWindowRelativeMouseMode((@current geng.Context).window, true);
@@ -57,7 +70,7 @@ const Game = newtype {
         with Assets.Ctx = &self^.assets;
         with Model.Renderer.Ctx = &self^.model_renderer;
 
-        World.draw(&mut self^.world);
+        World.draw(&mut self^.world, .update_camera = not self^.mouse_captured);
     ),
 });
 

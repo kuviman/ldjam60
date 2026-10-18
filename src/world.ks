@@ -54,12 +54,16 @@ impl World as module = (
         Car.update(&mut self^.car, &self^.map);
 	);
 
-	const draw = (self :: &mut World) => (
-		self^.camera_rotation.radians += angular_dist(self^.camera_rotation, Vec2.arg(self^.car.facing)).radians;
-
-		self^.camera.rotation = {
-			.radians = lerp(self^.camera.rotation.radians, self^.camera_rotation.radians, 0.05)
-		};
+	const draw = (self :: &mut World, .update_camera :: Bool) => (
+        if update_camera then (
+            self^.camera_rotation.radians += angular_dist(self^.camera_rotation, Vec2.arg(self^.car.facing)).radians;
+            self^.camera.rotation = {
+                .radians = lerp(self^.camera.rotation.radians, self^.camera_rotation.radians, 0.05)
+            };
+        ) else (
+            # =)
+            self^.camera_rotation = self^.camera.rotation;
+        );
 	
 		self^.camera.position = { ...self^.car.pos, 1.5 };
 
