@@ -54,11 +54,10 @@ impl Car as module = (
 
 
 		# good ol sara spalding's collision code
-		let car_size = 1.0;
-		if Map.square_intersects(map, Vec2.add(self^.pos, { self^.velocity.0, 0 }), car_size) then (
+		if Car.collides(&self^, map, Vec2.add(self^.pos, { self^.velocity.0, 0 }) ) then (
 			while abs(self^.velocity.0) > 0.1 do (
 				self^.velocity.0 *= 0.5;
-				if (not Map.square_intersects(map, Vec2.add(self^.pos, {self^.velocity.0, 0}), car_size)) then (
+				if (not Car.collides(&self^, map, Vec2.add(self^.pos, {self^.velocity.0, 0}) )) then (
 					self^.pos.0 += self^.velocity.0;
 				);
 			);
@@ -68,11 +67,11 @@ impl Car as module = (
 
 		self^.pos.0 += self^.velocity.0;
 
-		if Map.square_intersects(map, Vec2.add(self^.pos, { 0, self^.velocity.1 }), car_size ) then (
+		if Car.collides(&self^, map, Vec2.add(self^.pos, { 0, self^.velocity.1 }) ) then (
 			while abs(self^.velocity.1) > 0.1 do (
 				self^.velocity.1 *= 0.5;
 
-				if (not Map.square_intersects(map, Vec2.add(self^.pos, {0, self^.velocity.1}), car_size)) then (
+				if (not Car.collides(&self^, map, Vec2.add(self^.pos, {0, self^.velocity.1}) )) then (
 					self^.pos.1 += self^.velocity.1;
 				);
 			);	
@@ -86,6 +85,11 @@ impl Car as module = (
             self^.wheel_rotation,
             Angle.mul(Angle.from_degrees(100), Vec2.dot(self^.velocity, self^.facing)),
         );
+	);
+
+	const collides = (self :: &Car, map :: &Map, pos :: Vec2) -> Bool => (
+		let car_size :: Vec2 = {1.0, 1.0};
+		Map.square_intersects(map, pos, car_size)
 	);
 
     const visual_pos = (self :: &Car, alpha :: Float32) -> Vec2 => {

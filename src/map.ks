@@ -16,6 +16,7 @@ module:
 
 const Cell = newtype (
 	| :Building { .height :: Int32, .direction :: Angle }
+	| :Garage
     | :Trees
 	| :Road
 	| :Empty
@@ -69,6 +70,8 @@ impl Map as module = (
                 )
 		 	) else if c == '-' then (
 		 		:Road
+		 	) else if c == 'g' then (
+		 		:Garage
 		 	) else (
 		 		:Empty
 		 	);
@@ -121,20 +124,96 @@ impl Map as module = (
 	);
 
 	# in world space
-	const square_intersects = (self :: &Map, pos :: Vec2, size :: Float32) -> Bool => (
+	const square_intersects = (self :: &Map, pos :: Vec2, size :: Vec2) -> Bool => (
 		# car is smaller than buildings
 		# we can get away with testing 4 corners against the grid
 		# so should be fast
 		
-		let x0 = to_cell(self, pos.0 - size);
-		let x1 = to_cell(self, pos.0 + size);
-		let y0 = to_cell(self, pos.1 - size);
-		let y1 = to_cell(self, pos.1 + size);
+		let x0 = to_cell(self, pos.0 - size.0);
+		let x1 = to_cell(self, pos.0 + size.0);
+		let y0 = to_cell(self, pos.1 - size.1);
+		let y1 = to_cell(self, pos.1 + size.1);
 
-		   cell_intersects(self, x0, y0)
-		or cell_intersects(self, x1, y0)
-		or cell_intersects(self, x1, y1)
-		or cell_intersects(self, x0, y1)
+		let cx0 = get_cell(self, x0, y0);
+		let cx1 = get_cell(self, x1, y0);
+		let cy0 = get_cell(self, x1, y1);
+		let cy1 = get_cell(self, x0, y1);
+
+		# collides with solid tiles
+		   is_solid(cx0)
+		or is_solid(cx1)
+		or is_solid(cy0)
+		or is_solid(cy1)
+		or garage_intersects(self, cx0, x0, y0, pos, size) 
+		or garage_intersects(self, cx1, x1, y0, pos, size) 
+		or garage_intersects(self, cy0, x1, y1, pos, size) 
+		or garage_intersects(self, cy1, x0, y1, pos, size)
+	);
+	
+	const garage_intersects = (
+		self   :: &Map,
+		cell   :: Cell,
+		x      :: Int32,
+		y      :: Int32,
+		pos    :: Vec2,
+		size   :: Vec2,
+	) -> Bool => (
+		if Map.is_garage(cell) then (
+			let unit :: Float32 = self^.scale;
+			let t :: Float32 = 1/16 * unit;
+
+			   # back wall
+				Map.rect_intersects(
+			   		{
+				   		Int32_to_Float32(x)*unit,
+				   		Int32_to_Float32(y)*unit + unit/2 - t
+			   		},
+			   		{
+			   			unit/2,
+			   			t,
+				   	},
+				   	pos,
+				   	size
+				)
+
+			 	# right wall
+			or  Map.rect_intersects(
+			   		{
+				   		Int32_to_Float32(x)*unit + unit/2 - t,
+				   		Int32_to_Float32(y)*unit - t*2,
+			   		},
+			   		{
+			   			t,
+			   			unit/2 - t * 2,
+				   	},
+				   	pos, size
+				)
+
+				# left wall
+			or  Map.rect_intersects(
+			   		{
+				   		Int32_to_Float32(x)*unit - unit/2 + t,
+				   		Int32_to_Float32(y)*unit - t*2,
+			   		},
+			   		{
+			   			t,
+			   			unit/2 - t * 2,
+				   	},
+				   	pos, size
+				)
+		) else (
+			false
+		)
+	);
+
+	const rect_intersects = (
+		pos_a  :: Vec2,
+		size_a :: Vec2,
+		pos_b  :: Vec2,
+		size_b :: Vec2 
+	) -> Bool => (
+		    abs(pos_a.0 - pos_b.0) <= size_a.0 + size_b.0
+		and abs(pos_a.1 - pos_b.1) <= size_a.1 + size_b.1
 	);
 
 	const to_cell = (self :: &Map, v :: Float32) -> Int32 => (
@@ -164,10 +243,17 @@ impl Map as module = (
     );
 
 	# in grid space
-	const cell_intersects = (self :: &Map, x :: Int32, y :: Int32) -> Bool => (
-        match get_cell(self, x, y) with (
+	const is_solid = (cell :: Cell) -> Bool => (
+        match cell with (
             | :Building { ... } => true
             | :Trees => true
+            | _ => false
+        )
+	);
+
+	const is_garage = (cell :: Cell) -> Bool => (
+        match cell with (
+            | :Garage => true
             | _ => false
         )
 	);
@@ -196,6 +282,11 @@ impl Map as module = (
 				    	);
 					);
 				)
+				| :Garage => (
+                    Model.draw(&assets^.tv,
+                        matrix
+                    );
+                )
 				| :Trees => (
                     Model.draw(&assets^.trees,
                         matrix

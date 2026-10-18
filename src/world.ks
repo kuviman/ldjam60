@@ -27,8 +27,8 @@ impl World as module = (
 		&mut sb |> std.StringBuilder.add_str("#------#\n");
 		&mut sb |> std.StringBuilder.add_str("#-####-#\n");
 		&mut sb |> std.StringBuilder.add_str("#----#-#\n");
-		&mut sb |> std.StringBuilder.add_str("###--#-#\n");
-		&mut sb |> std.StringBuilder.add_str("###-##-#\n");
+		&mut sb |> std.StringBuilder.add_str("#-g--#-#\n");
+		&mut sb |> std.StringBuilder.add_str("#---##-#\n");
 		&mut sb |> std.StringBuilder.add_str("#------#\n");
 		&mut sb |> std.StringBuilder.add_str("########\n");
 		

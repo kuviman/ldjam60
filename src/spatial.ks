@@ -55,3 +55,32 @@ impl Cuboid as module = (
 		and abs(point.2 - pos.2) <= cuboid.half_size.2
 	);
 );
+
+const Rect = newtype {
+	.half_size :: Vec2,
+};
+
+impl Rect as module = (
+	module:
+
+	const new = (size :: Vec2) -> Rect => { .half_size = size };
+
+	const overlaps = (
+		pos_a :: Vec2,
+		rect_a :: Rect,
+		pos_b :: Vec2,
+		rect_b :: Rect,
+	) -> Bool => (
+		    abs(pos_a.0 - pos_b.0) <= rect_a.half_size.0 + rect_b.half_size.0
+		and abs(pos_a.1 - pos_b.1) <= rect_a.half_size.1 + rect_b.half_size.1
+	);
+
+	const contains = (
+		pos :: Vec2,
+		rect :: Rect,
+		point :: Vec2,
+	) -> Bool => (
+		    abs(point.0 - pos.0) <= rect.half_size.0
+		and abs(point.1 - pos.1) <= rect.half_size.1
+	);
+);
