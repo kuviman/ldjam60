@@ -123,11 +123,11 @@ impl Map as module = (
 			match cell with (
 				| :Building { .height = height } => (
 			    	for z in 0..height do (
-					    Model.draw(&(@current Assets.Ctx)^.tv,
+					    Model.draw(&(@current Assets.Ctx)^.building,
 					    	Mat4.translate({
 						    	Int32_to_Float32(x)*self^.scale,
 						    	Int32_to_Float32(y)*self^.scale,
-						    	Int32_to_Float32(z)*self^.scale,
+						    	Int32_to_Float32(z)*self^.scale/2, # half extents
 						    })
 				    	);
 					);

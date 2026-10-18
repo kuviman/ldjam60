@@ -28,9 +28,9 @@ impl World as module = (
 	{
         .camera = {
             .position = { 0, 0, 0 },
-            .distance = 10,
+            .distance = 5,
             .rotation = angle,
-            .attack = Angle.from_degrees(45),
+            .attack = Angle.from_degrees(10),
             .fov = Angle.from_degrees(90),
         },
         .camera_rotation = angle,
@@ -49,8 +49,7 @@ impl World as module = (
 			.radians = lerp(self^.camera.rotation.radians, self^.camera_rotation.radians, 0.05)
 		};
 	
-		let offset = Vec2.rotate({2, 0}, self^.camera.rotation);
-		self^.camera.position = { ...Vec2.add(self^.car.pos, offset), 2 };
+		self^.camera.position = { ...self^.car.pos, 1.5 };
 
         let framebuffer_size = geng.get_window_size();
         with geng.CameraUniforms.Ctx = geng.CameraUniforms.init(self^.camera, .framebuffer_size);
