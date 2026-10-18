@@ -23,6 +23,7 @@ const Game = newtype {
     .update = (self :: &mut Game, delta_time :: Float32) => (
         self^.tick_timer += delta_time;
 
+        with Assets.Ctx = &self^.assets;
         while self^.tick_timer > PHYSICS_TPS do (
             World.update(&mut self^.world);
             self^.tick_timer -= PHYSICS_TPS;
