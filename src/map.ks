@@ -127,7 +127,7 @@ impl Map as module = (
 					    	Mat4.translate({
 						    	Int32_to_Float32(x)*self^.scale,
 						    	Int32_to_Float32(y)*self^.scale,
-						    	Int32_to_Float32(z)*self^.scale-self^.scale*0.5, # half extents
+						    	Int32_to_Float32(z)*self^.scale, # half extents
 						    })
 				    	);
 					);
