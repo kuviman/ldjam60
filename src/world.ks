@@ -20,7 +20,19 @@ impl World as module = (
 
 	const new = () -> World => (
 		let angle = Angle.from_degrees(90);
-	    let map = Map.from_str("#---#\n-----\n#---#");
+
+		# DO NOT QUESTION MY LEVEL EDITOR
+		let mut sb = std.StringBuilder.new();
+		&mut sb |> std.StringBuilder.add_str("########\n");
+		&mut sb |> std.StringBuilder.add_str("#------#\n");
+		&mut sb |> std.StringBuilder.add_str("#-####-#\n");
+		&mut sb |> std.StringBuilder.add_str("#----#-#\n");
+		&mut sb |> std.StringBuilder.add_str("###--#-#\n");
+		&mut sb |> std.StringBuilder.add_str("###-##-#\n");
+		&mut sb |> std.StringBuilder.add_str("#------#\n");
+		&mut sb |> std.StringBuilder.add_str("########\n");
+		
+	    let map = Map.from_str(String.as_str(&std.StringBuilder.into_string(sb)));
 	    let spawn :: Vec2 = {
 	    	Int32_to_Float32(map.width)/2 * map.scale,
 	    	Int32_to_Float32(map.height)/2 * map.scale,
