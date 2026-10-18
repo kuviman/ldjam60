@@ -3,10 +3,12 @@ use (import "./assets.ks").*;
 use (import "./model.ks").*;
 use (import "./util.ks").*;
 use (import "./map.ks").*;
+use (import "./pickup.ks").*;
 
 module:
 
 const Car = newtype {
+	.size :: Vec2,
 	.prev_pos :: Vec2,
 	.pos :: Vec2,
 	.facing :: Vec2,
@@ -15,6 +17,8 @@ const Car = newtype {
 	.turn :: Angle,
     .steer :: Float32,
     .wheel_rotation :: Angle,
+    .pickup :: Option.t[Pickup],
+    .pickups :: ArrayList.t[Pickup],
 };
 
 impl Car as module = (
@@ -24,14 +28,17 @@ impl Car as module = (
 		.prev_pos = pos,
 		.pos = pos,
 		.facing = { 0, 0 },
-		.velocity = { 0, 0},
+		.velocity = { 0, 0 },
+		.size = { 1, 1 },
 		.turn = Angle.from_degrees(0),
 		.prev_turn = Angle.from_degrees(0),
         .wheel_rotation = Angle.from_degrees(0),
         .steer = 0,
+        .pickup = :None,
+        .pickups = ArrayList.new(),
 	};
 
-	const update = (self :: &mut Car, map :: &Map) => (
+	const update = (self :: &mut Car, map :: &mut Map) => (
 		self^.prev_pos = self^.pos;
 		self^.prev_turn = self^.turn;
 		
@@ -54,10 +61,10 @@ impl Car as module = (
 
 
 		# good ol sara spalding's collision code
-		if Car.collides(&self^, map, Vec2.add(self^.pos, { self^.velocity.0, 0 }) ) then (
+		if Car.collides(&self^, &map^, Vec2.add(self^.pos, { self^.velocity.0, 0 }) ) then (
 			while abs(self^.velocity.0) > 0.1 do (
 				self^.velocity.0 *= 0.5;
-				if (not Car.collides(&self^, map, Vec2.add(self^.pos, {self^.velocity.0, 0}) )) then (
+				if (not Car.collides(&self^, &map^, Vec2.add(self^.pos, {self^.velocity.0, 0}) )) then (
 					self^.pos.0 += self^.velocity.0;
 				);
 			);
@@ -67,11 +74,11 @@ impl Car as module = (
 
 		self^.pos.0 += self^.velocity.0;
 
-		if Car.collides(&self^, map, Vec2.add(self^.pos, { 0, self^.velocity.1 }) ) then (
+		if Car.collides(&self^, &map^, Vec2.add(self^.pos, { 0, self^.velocity.1 }) ) then (
 			while abs(self^.velocity.1) > 0.1 do (
 				self^.velocity.1 *= 0.5;
 
-				if (not Car.collides(&self^, map, Vec2.add(self^.pos, {0, self^.velocity.1}) )) then (
+				if (not Car.collides(&self^, &map^, Vec2.add(self^.pos, {0, self^.velocity.1}) )) then (
 					self^.pos.1 += self^.velocity.1;
 				);
 			);	
@@ -85,11 +92,84 @@ impl Car as module = (
             self^.wheel_rotation,
             Angle.mul(Angle.from_degrees(100), Vec2.dot(self^.velocity, self^.facing)),
         );
+
+
+        # pickups
+		if Option.is_none(&self^.pickup) then (
+
+			let x0 = Map.to_cell(&map^, self^.pos.0);
+			let y0 = Map.to_cell(&map^, self^.pos.1) - 1;
+
+			let x1 = Map.to_cell(&map^, self^.pos.0) + 1;
+			let y1 = Map.to_cell(&map^, self^.pos.1);
+
+			let x2 = Map.to_cell(&map^, self^.pos.0);
+			let y2 = Map.to_cell(&map^, self^.pos.1) + 1;
+
+			let x3 = Map.to_cell(&map^, self^.pos.0) - 1;
+			let y3 = Map.to_cell(&map^, self^.pos.1);
+
+			let mut result = grab_pickup(self, map, x0, y0);
+			if Option.is_none(&result) then (
+				result = grab_pickup(self, map, x1, y1);
+			);
+			if Option.is_none(&result) then (
+				result = grab_pickup(self, map, x2, y2)
+			);
+			if Option.is_none(&result) then (
+				result = grab_pickup(self, map, x3, y3)
+			);
+
+			self^.pickup = result;
+		);
+
+
+        if self^.pickup is :Some ref mut pickup then (
+			let x = Map.to_cell(&map^, self^.pos.0);
+			let y = Map.to_cell(&map^, self^.pos.1);
+
+			if Map.is_garage(Map.get_cell(&map^, x, y)) then (
+				ArrayList.push_back(&mut self^.pickups, pickup^);
+				self^.pickup = :None;
+			);
+		);
+	);
+
+	const grab_pickup = (self :: &mut Car, map :: &mut Map, x :: Int32, y :: Int32) -> Option.t[Pickup] => with_return (
+		match Map.get_cell_mut(map, x, y) with (
+			| :Some cell => (
+                if cell^ is :Building ref mut building then (
+					if Option.is_some(&building^.pickup) then (
+						# checked in grid space
+			            let mut pickup_pos :: Vec2 = Vec2.rotate({
+			                4/map^.scale,
+			                -1/map^.scale,
+			            }, building^.direction);
+									
+			            pickup_pos.0 += Int32_to_Float32(x);
+			            pickup_pos.1 += Int32_to_Float32(y);
+
+				    	let pickup_range :: Float32 = 0.4;
+
+				    	let dist = Vec2.length(Vec2.sub({pickup_pos.0, pickup_pos.1}, Vec2.div(self^.pos, map^.scale)));
+
+				    	if dist < pickup_range then (
+				    		let pickup = building^.pickup;
+				    		building^.pickup = :None;
+
+				    		return pickup;
+					    );
+					);
+                );
+			)
+			| _ => ()
+		);
+
+		:None
 	);
 
 	const collides = (self :: &Car, map :: &Map, pos :: Vec2) -> Bool => (
-		let car_size :: Vec2 = {1.0, 1.0};
-		Map.square_intersects(map, pos, car_size)
+		Map.square_intersects(map, pos, self^.size)
 	);
 
     const visual_pos = (self :: &Car, alpha :: Float32) -> Vec2 => {

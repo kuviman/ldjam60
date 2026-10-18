@@ -15,7 +15,6 @@ const World = newtype {
     .camera_rotation :: Angle,
     .car :: Car,
     .map :: Map,
-    .pickup :: Option.t[Pickup],
 };
 
 impl World as module = (
@@ -52,11 +51,10 @@ impl World as module = (
         .camera_rotation = angle,
         .car = Car.new(spawn),
         .map = map,
-        .pickup = :None,
 	}); 
 
 	const update = (self :: &mut World) => (
-        Car.update(&mut self^.car, &self^.map);
+        Car.update(&mut self^.car, &mut self^.map);
 	);
 
 	const draw = (self :: &mut World, .update_camera :: Bool, alpha :: Float32) => (
