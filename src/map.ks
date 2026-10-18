@@ -160,7 +160,7 @@ impl Map as module = (
 	) -> Bool => (
 		if Map.is_garage(cell) then (
 			let unit :: Float32 = self^.scale;
-			let t :: Float32 = 1/16 * unit;
+			let t :: Float32 = 1/20 * unit;
 
 			   # back wall
 				Map.rect_intersects(
@@ -283,7 +283,7 @@ impl Map as module = (
 					);
 				)
 				| :Garage => (
-                    Model.draw(&assets^.tv,
+                    Model.draw(&assets^.garage,
                         matrix
                     );
                 )

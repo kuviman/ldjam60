@@ -10,6 +10,7 @@ const Assets = newtype {
         .wheel :: Model.t,
     },
     .building :: Model.t,
+    .garage :: Model.t,
     .trees :: Model.t,
     .road :: {
         .connected :: Model.t,
@@ -31,6 +32,7 @@ impl Assets as module = (
                 .wheel = Model.load("assets/model_t/wheel"),
             },
             .building = Model.load("assets/building"),
+            .garage = Model.load("assets/garage"),
             .trees = Model.load("assets/trees"),
             .road = {
                 .connected = Model.load("assets/road/connected"),
