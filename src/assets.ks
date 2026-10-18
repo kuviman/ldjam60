@@ -5,7 +5,10 @@ module:
 
 const Assets = newtype {
     .tv :: Model.t,
-    .model_t :: Model.t,
+    .model_t :: {
+        .body :: Model.t,
+        .wheel :: Model.t,
+    },
     .building :: Model.t,
     .trees :: Model.t,
     .road :: {
@@ -23,7 +26,10 @@ impl Assets as module = (
     const load = () -> Assets => (
         {
             .tv = Model.load("assets/tv"),
-            .model_t = Model.load("assets/model_t"),
+            .model_t = {
+                .body = Model.load("assets/model_t"),
+                .wheel = Model.load("assets/model_t/wheel"),
+            },
             .building = Model.load("assets/building"),
             .trees = Model.load("assets/trees"),
             .road = {
