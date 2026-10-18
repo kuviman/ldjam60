@@ -42,7 +42,7 @@ impl Car as module = (
         let speed :: Float32 = 0.025;
         let steer_speed :: Float32 = 0.05;
 
-		self^.turn.radians += steer * steer_speed; 
+		self^.turn.radians += steer * steer_speed * (Vec2.dot(self^.velocity, self^.facing) * 3.0); 
 		self^.facing.0 = math.cos(self^.turn.radians);
 		self^.facing.1 = math.sin(self^.turn.radians);
 
