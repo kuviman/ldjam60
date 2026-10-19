@@ -29,7 +29,7 @@ impl World as module = (
 		&mut sb |> std.StringBuilder.add_str("################\n");
 		&mut sb |> std.StringBuilder.add_str("#-----###------#\n");
 		&mut sb |> std.StringBuilder.add_str("#-###-###-####-#\n");
-		&mut sb |> std.StringBuilder.add_str("#-###-###----#-#\n");
+		&mut sb |> std.StringBuilder.add_str("#-###-###--#-#-#\n");
 		&mut sb |> std.StringBuilder.add_str("#-----####---#-#\n");
 		&mut sb |> std.StringBuilder.add_str("#-#########-##-#\n");
 		&mut sb |> std.StringBuilder.add_str("#-#######------#\n");
@@ -93,5 +93,5 @@ impl World as module = (
         
         Map.draw(&mut self^.map, &self^.car.pickups);
         Car.draw(&mut self^.car, alpha);
-	);	 
+	);
 );
