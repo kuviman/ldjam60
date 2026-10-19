@@ -14,14 +14,18 @@ const Game = newtype {
 };
 
 @eval (impl Game as geng.App = {
-    .init = () -> Game => {
-        .model_renderer = Model.Renderer.init(),
-        .assets = Assets.load(),
-        .mouse_captured = false,
-        .world = World.new(),
-        .tick_timer = 0,
-        .time_since_camera_control = 100,
-    },
+    .init = () -> Game => (
+        let assets = Assets.load();
+        with Assets.Ctx = &assets;
+        {
+            .model_renderer = Model.Renderer.init(),
+            .world = World.new(),
+            .assets = assets,
+            .mouse_captured = false,
+            .tick_timer = 0,
+            .time_since_camera_control = 100,
+        }
+    ),
     .update = (self :: &mut Game, delta_time :: Float32) => (
         self^.mouse_captured = true;
         SDL.SetWindowRelativeMouseMode((@current geng.Context).window, true);
@@ -40,7 +44,7 @@ const Game = newtype {
             | :KeyPress :Space => (
                 let options :: geng.audio.PlayOptions = {
                     .@"loop" = false,
-                    .volume = 1,
+                    .volume = 0.5,
                 };
                 geng.audio.play_with(&self^.assets.honk, options);
             )

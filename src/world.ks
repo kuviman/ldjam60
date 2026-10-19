@@ -14,7 +14,6 @@ const World = newtype {
     .camera_rotation :: Angle,
     .car :: Car,
     .map :: Map,
-    .playing :: Bool,
 };
 
 impl World as module = (
@@ -48,6 +47,13 @@ impl World as module = (
 	    	Int32_to_Float32(map.width)/2 * map.scale,
 	    	Int32_to_Float32(map.height)/2 * map.scale,
 	    };
+
+        let options :: geng.audio.PlayOptions = {
+            .@"loop" = true,
+            .volume = 0.75,
+        };
+
+        geng.audio.play_with(&(@current Assets.Ctx)^.earth_angel, options);
 	{
         .camera = {
             .position = { 0, 0, 0 },
@@ -59,18 +65,9 @@ impl World as module = (
         .camera_rotation = angle,
         .car = Car.new(spawn),
         .map = map,
-        .playing = false,
 	}); 
 
 	const update = (self :: &mut World, delta_time :: Float32) => (
-		if not self^.playing then (
-	        let options :: geng.audio.PlayOptions = {
-	            .@"loop" = true,
-	            .volume = 0.75,
-	        };
-	        geng.audio.play_with(&(@current Assets.Ctx)^.earth_angel, options);
-	        self^.playing = true;
-		);
 			
         Car.update(&mut self^.car, &mut self^.map, delta_time);
 	);

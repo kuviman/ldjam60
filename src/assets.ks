@@ -37,6 +37,7 @@ const Assets = newtype {
     .honk :: geng.audio.Buffer,
     .bonk :: geng.audio.Buffer,
     .earth_angel :: geng.audio.Buffer,
+    .drifting :: geng.audio.Buffer,
 };
 
 impl Assets as module = (
@@ -65,6 +66,7 @@ impl Assets as module = (
             .honk = geng.audio.Buffer.load("assets/honk.mp3"),
             .bonk = geng.audio.Buffer.load("assets/bonk.mp3"),
             .earth_angel = geng.audio.Buffer.load("assets/earth-angel.wav"),
+            .drifting = geng.audio.Buffer.load("assets/drifting.wav"),
         }
     );
 );

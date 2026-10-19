@@ -21,17 +21,25 @@ const Car = newtype {
     .pickups :: ArrayList.t[Pickup],
     .stun_timer :: Float32,
     .victory :: Bool,
+    .drifting_sfx :: geng.audio.Effect,
+    .drifting_vol :: Float32,
 };
 
 impl Car as module = (
 	module:
 	
-	const new = (pos :: Vec2) -> Car => {
+	const new = (pos :: Vec2) -> Car => (
+        let options :: geng.audio.PlayOptions = {
+            .@"loop" = true,
+            .volume = 0,
+        };
+
+	{
 		.prev_pos = pos,
 		.pos = pos,
 		.facing = { 0, 0 },
 		.velocity = { 0, 0 },
-		.size = { 1, 1 },
+		.size = { 0.6, 0.6 },
 		.turn = Angle.from_degrees(90),
 		.prev_turn = Angle.from_degrees(90),
         .wheel_rotation = Angle.from_degrees(0),
@@ -40,7 +48,9 @@ impl Car as module = (
         .pickups = ArrayList.new(),
         .stun_timer = 0,
         .victory = false,
-	};
+        .drifting_sfx = geng.audio.play_with(&(@current Assets.Ctx)^.drifting, options),
+        .drifting_vol = 0,
+	});
 
 	const update = (self :: &mut Car, map :: &mut Map, delta_time :: Float32) => (
 		self^.stun_timer = max(0, self^.stun_timer - delta_time);
@@ -63,7 +73,7 @@ impl Car as module = (
 					radio_bonus = 0.01;
 				)
 				| &(:Tv) => (
-					bounce = 0.25;
+					bounce = 0.5;
 				)
 				| _ => ()
 			);
@@ -101,7 +111,18 @@ impl Car as module = (
         let speed :: Float32 = 0.025 * stopwatch_multiplier;
         let steer_speed :: Float32 = 0.15 * phone_multiplier;
 
-		self^.turn.radians += steer * steer_speed * (Vec2.dot(self^.velocity, self^.facing)); 
+
+		if accelerate > 0 and Vec2.length(self^.velocity) > 0.2 then (
+	        self^.drifting_vol = lerp(self^.drifting_vol, abs(angular_dist(Vec2.arg(self^.velocity), self^.turn).radians)*2/PI, 0.25);
+		) else (
+			self^.drifting_vol = lerp(self^.drifting_vol, 0, 0.25);
+		);
+
+		geng.audio.Effect.set_volume(self^.drifting_sfx, min(1.2, 3.0*self^.drifting_vol));
+
+
+        let drift = (Vec2.dot(self^.velocity, self^.facing));
+		self^.turn.radians += steer * steer_speed * drift; 
 		self^.facing.0 = math.cos(self^.turn.radians);
 		self^.facing.1 = math.sin(self^.turn.radians);
 
@@ -123,7 +144,7 @@ impl Car as module = (
 
 		        let options :: geng.audio.PlayOptions = {
 		            .@"loop" = false,
-		            .volume = 0.75,
+		            .volume = 0.5,
 		        };
 		        geng.audio.play_with(&(@current Assets.Ctx)^.bonk, options);
 		        bonk = true;
