@@ -296,7 +296,7 @@ impl Map as module = (
         )
 	);
 
-	const draw = (self :: &mut Map, pickups :: &ArrayList.t[Pickup]) => (
+	const draw = (self :: &mut Map, pickups :: &ArrayList.t[Pickup], victory_time :: Option.t[Float32]) => (
         let assets = @current Assets.Ctx;
 		# no iteri saj
 		let mut i :: Int32 = 0;
@@ -340,6 +340,38 @@ impl Map as module = (
                     Model.draw(&assets^.pickups.tv,
                         matrix
                     );
+
+					let text_mat = Mat4.mul_mat(
+						Mat4.rotate_z(Angle.from_degrees(90)),
+						Mat4.rotate_x(Angle.from_degrees(90))
+					);
+                    # draw text
+                    if victory_time is :Some time then (
+	                    geng.Font.draw(
+	                    	&(@current geng.Context).font,
+	                    	"victory",
+	                    	.matrix = matrix
+	                    		|> Mat4.mul_mat(Mat4.translate({0, 0, 3}))
+	                    		|> Mat4.mul_mat(text_mat),
+	                    	.color = {1.0, 1.0, 1.0, 1.0},
+	                    	.align = 0.5,
+	                    );
+
+	                    geng.Font.draw(
+	                    	&(@current geng.Context).font,
+	                    	&(
+	                            let seconds :: Int32 = Float32_to_Int32(time);
+	                            let minutes = seconds / 60;
+	                            let seconds = seconds % 60;
+	                            format!("\(minutes):\(seconds / 10)\(seconds % 10)")
+	                        ) |> as_str,
+	                    	.matrix = matrix
+	                    		|> Mat4.mul_mat(Mat4.translate({0, 0, 2}))
+	                    		|> Mat4.mul_mat(text_mat),
+	                    	.color = {1.0, 1.0, 1.0, 1.0},
+	                    	.align = 0.5,
+	                    );
+	                );
                 )
 				| :Trees => (
                     Model.draw(&assets^.trees,

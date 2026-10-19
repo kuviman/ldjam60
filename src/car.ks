@@ -8,6 +8,7 @@ use (import "./pickup.ks").*;
 module:
 
 const Car = newtype {
+	.has_moved :: Bool,
 	.size :: Vec2,
 	.prev_pos :: Vec2,
 	.pos :: Vec2,
@@ -22,7 +23,9 @@ const Car = newtype {
     .stun_timer :: Float32,
     .victory :: Bool,
     .drifting_sfx :: geng.audio.Effect,
+    .vroom_sfx :: geng.audio.Effect,
     .drifting_vol :: Float32,
+    .vroom_vol :: Float32,
 };
 
 impl Car as module = (
@@ -48,13 +51,15 @@ impl Car as module = (
         .pickups = ArrayList.new(),
         .stun_timer = 0,
         .victory = false,
-        .drifting_sfx = geng.audio.play_with(&(@current Assets.Ctx)^.drifting, options),
+        .has_moved = false,
+    	.drifting_sfx = geng.audio.play_with(&(@current Assets.Ctx)^.drifting, options),
+        .vroom_sfx = geng.audio.play_with(&(@current Assets.Ctx)^.vroom, options),
         .drifting_vol = 0,
+        .vroom_vol = 0,
 	});
 
 	const update = (self :: &mut Car, map :: &mut Map, delta_time :: Float32) => (
 		self^.stun_timer = max(0, self^.stun_timer - delta_time);
-
 
 		let mut stopwatch_multiplier = 1;
 		let mut phone_multiplier = 1;
@@ -111,15 +116,20 @@ impl Car as module = (
         let speed :: Float32 = 0.025 * stopwatch_multiplier;
         let steer_speed :: Float32 = 0.15 * phone_multiplier;
 
-
 		if accelerate > 0 and Vec2.length(self^.velocity) > 0.2 then (
 	        self^.drifting_vol = lerp(self^.drifting_vol, abs(angular_dist(Vec2.arg(self^.velocity), self^.turn).radians)*2/PI, 0.25);
 		) else (
 			self^.drifting_vol = lerp(self^.drifting_vol, 0, 0.25);
 		);
 
-		geng.audio.Effect.set_volume(self^.drifting_sfx, min(1.2, 3.0*self^.drifting_vol));
+		if Vec2.length(self^.velocity) > 0.01 then (
+	        self^.vroom_vol = lerp(self^.vroom_vol, Vec2.length(self^.velocity), 0.25);
+		) else (
+			self^.vroom_vol = lerp(self^.vroom_vol, 0, 0.25);
+		);
 
+		geng.audio.Effect.set_volume(self^.drifting_sfx, min(1.2, 3.0*self^.drifting_vol));
+		geng.audio.Effect.set_volume(self^.vroom_sfx, min(1.2, 1.0*self^.vroom_vol));
 
         let drift = (Vec2.dot(self^.velocity, self^.facing));
 		self^.turn.radians += steer * steer_speed * drift; 
@@ -257,6 +267,10 @@ impl Car as module = (
 
 				dbg.print("you won");
 			);
+		);
+
+		if Vec2.length(self^.velocity) > 0 then (
+			self^.has_moved = true;
 		);
 	);
 

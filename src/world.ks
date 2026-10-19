@@ -14,6 +14,7 @@ const World = newtype {
     .camera_rotation :: Angle,
     .car :: Car,
     .map :: Map,
+    .time :: Float32,
 };
 
 impl World as module = (
@@ -65,11 +66,14 @@ impl World as module = (
         .camera_rotation = angle,
         .car = Car.new(spawn),
         .map = map,
+        .time = 0,
 	}); 
 
 	const update = (self :: &mut World, delta_time :: Float32) => (
-			
         Car.update(&mut self^.car, &mut self^.map, delta_time);
+        if self^.car.has_moved and (not self^.car.victory) then (
+        	self^.time += delta_time;
+	    );
 	);
 
 	const draw = (self :: &mut World, .update_camera :: Bool, alpha :: Float32) => (
@@ -79,7 +83,6 @@ impl World as module = (
                 .radians = lerp(self^.camera.rotation.radians, self^.camera_rotation.radians, 0.05)
             };
         ) else (
-            # =)
             self^.camera_rotation = self^.camera.rotation;
         );
 	
@@ -88,7 +91,13 @@ impl World as module = (
         let framebuffer_size = geng.get_window_size();
         with geng.CameraUniforms.Ctx = geng.CameraUniforms.init(self^.camera, .framebuffer_size);
         
-        Map.draw(&mut self^.map, &self^.car.pickups);
+        let victory_time = if self^.car.victory then (
+    		:Some self^.time
+	    ) else (
+	    	:None
+	    );
+
+        Map.draw(&mut self^.map, &self^.car.pickups, victory_time);
         Car.draw(&mut self^.car, alpha);
 	);
 );
