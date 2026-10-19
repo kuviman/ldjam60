@@ -243,6 +243,14 @@ impl Car as module = (
 				result = grab_pickup(self, map, x3, y3)
 			);
 
+			if result is :Some _ then (
+		        let options :: geng.audio.PlayOptions = {
+		            .@"loop" = false,
+		            .volume = 0.5,
+		        };
+		        geng.audio.play_with(&(@current Assets.Ctx)^.bonk, options);
+			);
+
 			self^.pickup = result;
 		);
 
