@@ -264,8 +264,6 @@ impl Car as module = (
 
 			if Map.is_finish(Map.get_cell(&map^, x, y)) then (
 				self^.victory = true;
-
-				dbg.print("you won");
 			);
 		);
 
