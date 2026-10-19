@@ -187,6 +187,11 @@ impl Car as module = (
 		let matrix = Mat4.translate({ ...visual_pos(&self^, alpha), 0 }) |>
                      Mat4.mul_mat(Mat4.rotate_z(visual_turn(&self^, alpha)));
 
+        if self^.pickup is :Some pickup then (
+            Model.draw(&assets^.hand, matrix);
+            Model.draw(pickup_model(pickup, &assets^.pickups), matrix);
+        );
+
         Model.draw(&assets^.model_t.body, matrix);
 
         const WHEEL_DX_BACK :: Float32 = -0.608026;
@@ -207,5 +212,9 @@ impl Car as module = (
         draw_wheel(WHEEL_DX_BACK, -WHEEL_DY, 0);
         draw_wheel(WHEEL_DX_FRONT, +WHEEL_DY, self^.steer);
         draw_wheel(WHEEL_DX_FRONT, -WHEEL_DY, self^.steer);
+
+        for &pickup in &self^.pickups |> ArrayList.iter do (
+            Model.draw(pickup_model(pickup, &assets^.upgrades), matrix);
+        );
 	);	 
 );

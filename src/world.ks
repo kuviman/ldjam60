@@ -83,7 +83,7 @@ impl World as module = (
         let framebuffer_size = geng.get_window_size();
         with geng.CameraUniforms.Ctx = geng.CameraUniforms.init(self^.camera, .framebuffer_size);
         
-        Map.draw(&mut self^.map);
+        Map.draw(&mut self^.map, &self^.car.pickups);
         Car.draw(&mut self^.car, alpha);
 	);	 
 );

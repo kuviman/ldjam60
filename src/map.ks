@@ -126,8 +126,7 @@ impl Map as module = (
             );
         );
 
-		let mut pickups = ArrayList.new();
-		ArrayList.push_back(&mut pickups, :Tv);
+		let mut pickups = all_pickups();
 
 		while ( ArrayList.length(&pickups) > 0 ) do (
 			let x :: Int32 = std.random.gen_range[Int32](.min = 0, .max = width-1);
@@ -287,7 +286,7 @@ impl Map as module = (
         )
 	);
 
-	const draw = (self :: &mut Map) => (
+	const draw = (self :: &mut Map, pickups :: &ArrayList.t[Pickup]) => (
         let assets = @current Assets.Ctx;
 		# no iteri saj
 		let mut i :: Int32 = 0;
@@ -311,21 +310,20 @@ impl Map as module = (
 				    	);
 					);
 
-					match pickup with (
-						| :Some :Tv => (
-						    Model.draw(&assets^.tv,
-						    	matrix
-	                            |> Mat4.mul_mat(Mat4.rotate_z(direction))
-					    		|> Mat4.mul_mat(Mat4.translate({4, -1, 0.3}))
-					    	);
-						)
-						| _ => ()
-					);
-					
+                    if pickup is :Some pickup then (
+                        Model.draw(pickup_model(pickup, &assets^.items),
+                            matrix
+                            |> Mat4.mul_mat(Mat4.rotate_z(direction))
+                            |> Mat4.mul_mat(Mat4.translate({4, -1, 0.3}))
+                        );
+                    );
 				)
 				| :Garage => (
                     Model.draw(&assets^.garage,
                         matrix
+                    );
+                    for &pickup in pickups |> ArrayList.iter do (
+                        Model.draw(pickup_model(pickup, &assets^.board), matrix);
                     );
                 )
 				| :Trees => (

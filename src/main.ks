@@ -10,6 +10,7 @@ const Game = newtype {
     .mouse_captured :: Bool,
     .world :: World,
     .tick_timer :: Float32,
+    .time_since_camera_control :: Float32,
 };
 
 @eval (impl Game as geng.App = {
@@ -19,8 +20,12 @@ const Game = newtype {
         .mouse_captured = false,
         .world = World.new(),
         .tick_timer = 0,
+        .time_since_camera_control = 100,
     },
     .update = (self :: &mut Game, delta_time :: Float32) => (
+        self^.mouse_captured = true;
+        SDL.SetWindowRelativeMouseMode((@current geng.Context).window, true);
+
         self^.tick_timer += delta_time;
 
         with Assets.Ctx = &self^.assets;
@@ -28,6 +33,7 @@ const Game = newtype {
             World.update(&mut self^.world);
             self^.tick_timer -= PHYSICS_TPS;
         );
+        self^.time_since_camera_control += delta_time;
     ),
     .handle_event = (self :: &mut Game, event :: geng.Event) => (
         match event with (
@@ -41,6 +47,7 @@ const Game = newtype {
             | :MouseMove { .position, .delta } => (
                 let camera = &mut self^.world.camera;
                 if self^.mouse_captured then (
+                    self^.time_since_camera_control = 0;
                     let { window_width, window_height } = geng.get_window_size();
                     camera^.rotation = Angle.sub(
                         camera^.rotation,
@@ -58,8 +65,8 @@ const Game = newtype {
 
             )
             | :PointerRelease _ => (
-                self^.mouse_captured = false;
-                SDL.SetWindowRelativeMouseMode((@current geng.Context).window, false);
+                # self^.mouse_captured = false;
+                # SDL.SetWindowRelativeMouseMode((@current geng.Context).window, false);
             )
             | _ => ()
         );
@@ -72,7 +79,7 @@ const Game = newtype {
         with Model.Renderer.Ctx = &self^.model_renderer;
 
         let alpha = self^.tick_timer / PHYSICS_TPS;
-        World.draw(&mut self^.world, .update_camera = not self^.mouse_captured, alpha);
+        World.draw(&mut self^.world, .update_camera = self^.time_since_camera_control > 2.5, alpha);
     ),
 });
 
