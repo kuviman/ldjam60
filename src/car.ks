@@ -246,7 +246,7 @@ impl Car as module = (
 			if result is :Some _ then (
 		        let options :: geng.audio.PlayOptions = {
 		            .@"loop" = false,
-		            .volume = 0.5,
+		            .volume = 0.8,
 		        };
 		        geng.audio.play_with(&(@current Assets.Ctx)^.bonk, options);
 			);

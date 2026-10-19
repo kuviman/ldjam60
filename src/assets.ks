@@ -40,6 +40,7 @@ const Assets = newtype {
     .earth_angel :: geng.audio.Buffer,
     .drifting :: geng.audio.Buffer,
     .vroom :: geng.audio.Buffer,
+    .thud :: geng.audio.Buffer,
 };
 
 impl Assets as module = (
@@ -71,6 +72,7 @@ impl Assets as module = (
             .earth_angel = geng.audio.Buffer.load("assets/earth-angel.wav"),
             .drifting = geng.audio.Buffer.load("assets/drifting.wav"),
             .vroom = geng.audio.Buffer.load("assets/vroom.wav"),
+            .thud = geng.audio.Buffer.load("assets/thud.wav"),
         }
     );
 );
