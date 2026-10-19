@@ -337,7 +337,7 @@ impl Map as module = (
                     );
                 )
 				| :Finish => (
-                    Model.draw(&assets^.pickups.tv,
+                    Model.draw(&assets^.finish,
                         matrix
                     );
 

@@ -19,6 +19,7 @@ const load_item_assets = (path :: &str) -> ItemAssets => {
 
 const Assets = newtype {
     .hand :: Model.t,
+    .finish :: Model.t,
     .pickups :: ItemAssets,
     .upgrades :: ItemAssets,
     .board :: ItemAssets,
@@ -49,6 +50,7 @@ impl Assets as module = (
     const load = () -> Assets => (
         {
             .hand = Model.load("assets/hand"),
+            .finish = Model.load("assets/finish"),
             .pickups = load_item_assets("assets/pickups"),
             .items = load_item_assets("assets/items"),
             .upgrades = load_item_assets("assets/upgrades"),
