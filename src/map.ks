@@ -22,6 +22,7 @@ const Cell = newtype (
 		.road_near :: Bool,
 		.pickup :: Option.t[Pickup]
 	}
+	| :Finish
 	| :Garage
     | :Trees
 	| :Road
@@ -80,6 +81,8 @@ impl Map as module = (
 		 		:Road
 		 	) else if c == 'g' then (
 		 		:Garage
+		 	) else if c == 'f' then (
+		 		:Finish
 		 	) else (
 		 		:Empty
 		 	);
@@ -286,6 +289,13 @@ impl Map as module = (
         )
 	);
 
+	const is_finish = (cell :: Cell) -> Bool => (
+        match cell with (
+            | :Finish => true
+            | _ => false
+        )
+	);
+
 	const draw = (self :: &mut Map, pickups :: &ArrayList.t[Pickup]) => (
         let assets = @current Assets.Ctx;
 		# no iteri saj
@@ -324,6 +334,11 @@ impl Map as module = (
                     );
                     for &pickup in pickups |> ArrayList.iter do (
                         Model.draw(pickup_model(pickup, &assets^.board), matrix);
+                    );
+                )
+				| :Finish => (
+                    Model.draw(&assets^.pickups.tv,
+                        matrix
                     );
                 )
 				| :Trees => (

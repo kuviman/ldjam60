@@ -19,6 +19,8 @@ const Car = newtype {
     .wheel_rotation :: Angle,
     .pickup :: Option.t[Pickup],
     .pickups :: ArrayList.t[Pickup],
+    .stun_timer :: Float32,
+    .victory :: Bool,
 };
 
 impl Car as module = (
@@ -30,51 +32,136 @@ impl Car as module = (
 		.facing = { 0, 0 },
 		.velocity = { 0, 0 },
 		.size = { 1, 1 },
-		.turn = Angle.from_degrees(0),
-		.prev_turn = Angle.from_degrees(0),
+		.turn = Angle.from_degrees(180),
+		.prev_turn = Angle.from_degrees(180),
         .wheel_rotation = Angle.from_degrees(0),
         .steer = 0,
         .pickup = :None,
         .pickups = ArrayList.new(),
+        .stun_timer = 0,
+        .victory = false,
 	};
 
-	const update = (self :: &mut Car, map :: &mut Map) => (
+	const update = (self :: &mut Car, map :: &mut Map, delta_time :: Float32) => (
+		self^.stun_timer = max(0, self^.stun_timer - delta_time);
+
+
+		let mut stopwatch_multiplier = 1;
+		let mut phone_multiplier = 1;
+		let mut radio_bonus = 0;
+		let mut bounce = 0;
+
+		for pickup in ArrayList.iter(&self^.pickups) do (
+			match pickup with (
+				| &(:Stopwatch) => (
+					stopwatch_multiplier = 1.25;
+				)
+				| &(:Phone) => (
+					phone_multiplier = 1.25;
+				)
+				| &(:Radio) => (
+					radio_bonus = 0.01;
+				)
+				| &(:Tv) => (
+					bounce = 0.25;
+				)
+				| _ => ()
+			);
+		);
+		
 		self^.prev_pos = self^.pos;
 		self^.prev_turn = self^.turn;
 		
-        let accelerate :: Float32 = b_to_f32(geng.input.Key.is_pressed(:W)) - b_to_f32(geng.input.Key.is_pressed(:S));
-        let steer :: Float32 = b_to_f32(geng.input.Key.is_pressed(:A)) - b_to_f32(geng.input.Key.is_pressed(:D));
+		let len = Vec2.length(self^.velocity);
+
+        let mut accelerate :: Float32 =
+        (
+        	if self^.stun_timer == 0 then (
+		        b_to_f32(geng.input.Key.is_pressed(:W)) - b_to_f32(geng.input.Key.is_pressed(:S))	
+	        ) else (
+	        	0
+	        )
+        );
+
+        if accelerate < 0 then (
+    		accelerate = -0.5;
+	    );
+
+        let steer :: Float32 =
+        (
+        	if self^.stun_timer == 0 then (
+	        	b_to_f32(geng.input.Key.is_pressed(:A)) - b_to_f32(geng.input.Key.is_pressed(:D))
+	        ) else (
+	        	0
+	        )
+		);
+        
         self^.steer = steer;
 
-        let speed :: Float32 = 0.025;
-        let steer_speed :: Float32 = 0.05;
+        let speed :: Float32 = 0.025 * stopwatch_multiplier;
+        let steer_speed :: Float32 = 0.15 * phone_multiplier;
 
-		self^.turn.radians += steer * steer_speed * (Vec2.dot(self^.velocity, self^.facing) * 3.0); 
+		self^.turn.radians += steer * steer_speed * (Vec2.dot(self^.velocity, self^.facing)); 
 		self^.facing.0 = math.cos(self^.turn.radians);
 		self^.facing.1 = math.sin(self^.turn.radians);
 
 		self^.velocity.0 += self^.facing.0 * (accelerate * speed); 
 		self^.velocity.1 += self^.facing.1 * (accelerate * speed); 
 
-		let friction_coeff = 0.95;
-		self^.velocity = Vec2.mul(self^.velocity, friction_coeff);
+		let friction = 0.05 - radio_bonus;
+		self^.velocity = Vec2.sub(self^.velocity, Vec2.mul(self^.velocity, friction));
 
+		let vel_dir = Vec2.normalize_or_zero(self^.velocity);
 
 		# good ol sara spalding's collision code
 		if Car.collides(&self^, &map^, Vec2.add(self^.pos, { self^.velocity.0, 0 }) ) then (
-			while abs(self^.velocity.0) > 0.1 do (
+			let mut bonk = false;
+			if abs(self^.velocity.0) > 0.15 then (
+				if self^.stun_timer == 0 then (
+					self^.stun_timer > 0; 			
+				);
+
+		        let options :: geng.audio.PlayOptions = {
+		            .@"loop" = false,
+		            .volume = 0.75,
+		        };
+		        geng.audio.play_with(&(@current Assets.Ctx)^.bonk, options);
+		        bonk = true;
+			);
+
+			while abs(self^.velocity.0) > 0.4 do (
 				self^.velocity.0 *= 0.5;
 				if (not Car.collides(&self^, &map^, Vec2.add(self^.pos, {self^.velocity.0, 0}) )) then (
 					self^.pos.0 += self^.velocity.0;
 				);
 			);
 						
-			self^.velocity.0 = 0;
+			if bonk then (
+				self^.velocity.0 = -bounce*vel_dir.0;
+				self^.velocity.1 = bounce*vel_dir.1;
+			) else (
+				self^.velocity.0 = 0;
+			);
 		);
 
 		self^.pos.0 += self^.velocity.0;
 
 		if Car.collides(&self^, &map^, Vec2.add(self^.pos, { 0, self^.velocity.1 }) ) then (
+			let mut bonk = false;
+			if abs(self^.velocity.1) > 0.15 then (
+				if self^.stun_timer == 0 then (
+					self^.stun_timer > 0; 			
+				);
+
+		        let options :: geng.audio.PlayOptions = {
+		            .@"loop" = false,
+		            .volume = 0.75,
+		        };
+		        geng.audio.play_with(&(@current Assets.Ctx)^.bonk, options);
+
+		        bonk = true;
+			);
+
 			while abs(self^.velocity.1) > 0.1 do (
 				self^.velocity.1 *= 0.5;
 
@@ -83,7 +170,12 @@ impl Car as module = (
 				);
 			);	
 
-			self^.velocity.1 = 0;
+			if bonk then (
+				self^.velocity.0 = bounce*vel_dir.0;
+				self^.velocity.1 = -bounce*vel_dir.1;
+			) else (
+				self^.velocity.1 = 0;
+			);
 		);
 
 		self^.pos.1 += self^.velocity.1;
@@ -131,6 +223,18 @@ impl Car as module = (
 			if Map.is_garage(Map.get_cell(&map^, x, y)) then (
 				ArrayList.push_back(&mut self^.pickups, pickup^);
 				self^.pickup = :None;
+			);
+		);
+
+		# WIN
+		if ArrayList.length(&self^.pickups) == 4 then (
+			let x = Map.to_cell(&map^, self^.pos.0);
+			let y = Map.to_cell(&map^, self^.pos.1);
+
+			if Map.is_finish(Map.get_cell(&map^, x, y)) then (
+				self^.victory = true;
+
+				dbg.print("you won");
 			);
 		);
 	);

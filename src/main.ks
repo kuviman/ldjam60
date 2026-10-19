@@ -30,7 +30,7 @@ const Game = newtype {
 
         with Assets.Ctx = &self^.assets;
         while self^.tick_timer > PHYSICS_TPS do (
-            World.update(&mut self^.world);
+            World.update(&mut self^.world, delta_time);
             self^.tick_timer -= PHYSICS_TPS;
         );
         self^.time_since_camera_control += delta_time;

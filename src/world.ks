@@ -26,14 +26,22 @@ impl World as module = (
 
 		# DO NOT QUESTION MY LEVEL EDITOR
 		let mut sb = std.StringBuilder.new();
-		&mut sb |> std.StringBuilder.add_str("########\n");
-		&mut sb |> std.StringBuilder.add_str("#------#\n");
-		&mut sb |> std.StringBuilder.add_str("#-####-#\n");
-		&mut sb |> std.StringBuilder.add_str("#----#-#\n");
-		&mut sb |> std.StringBuilder.add_str("##g--#-#\n");
-		&mut sb |> std.StringBuilder.add_str("###-##-#\n");
-		&mut sb |> std.StringBuilder.add_str("#------#\n");
-		&mut sb |> std.StringBuilder.add_str("########\n");
+		&mut sb |> std.StringBuilder.add_str("################\n");
+		&mut sb |> std.StringBuilder.add_str("#-----###------#\n");
+		&mut sb |> std.StringBuilder.add_str("#-###-###-####-#\n");
+		&mut sb |> std.StringBuilder.add_str("#-###-###----#-#\n");
+		&mut sb |> std.StringBuilder.add_str("#-----####---#-#\n");
+		&mut sb |> std.StringBuilder.add_str("#-#########-##-#\n");
+		&mut sb |> std.StringBuilder.add_str("#-#######------#\n");
+		&mut sb |> std.StringBuilder.add_str("#---------######\n");
+		&mut sb |> std.StringBuilder.add_str("####-###g----#-#\n");
+		&mut sb |> std.StringBuilder.add_str("#-##-#-####-##-#\n");
+		&mut sb |> std.StringBuilder.add_str("#-##---##------#\n");
+		&mut sb |> std.StringBuilder.add_str("#-####-######-##\n");
+		&mut sb |> std.StringBuilder.add_str("#------##f--#--#\n");
+		&mut sb |> std.StringBuilder.add_str("###-#######-##-#\n");
+		&mut sb |> std.StringBuilder.add_str("###------------#\n");
+		&mut sb |> std.StringBuilder.add_str("################\n");
 		
 	    let map = Map.from_str(String.as_str(&std.StringBuilder.into_string(sb)));
 	    let spawn :: Vec2 = {
@@ -54,7 +62,7 @@ impl World as module = (
         .playing = false,
 	}); 
 
-	const update = (self :: &mut World) => (
+	const update = (self :: &mut World, delta_time :: Float32) => (
 		if not self^.playing then (
 	        let options :: geng.audio.PlayOptions = {
 	            .@"loop" = true,
@@ -64,7 +72,7 @@ impl World as module = (
 	        self^.playing = true;
 		);
 			
-        Car.update(&mut self^.car, &mut self^.map);
+        Car.update(&mut self^.car, &mut self^.map, delta_time);
 	);
 
 	const draw = (self :: &mut World, .update_camera :: Bool, alpha :: Float32) => (

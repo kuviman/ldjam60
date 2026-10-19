@@ -35,6 +35,7 @@ const Assets = newtype {
         .disconnected :: Model.t,
     },
     .honk :: geng.audio.Buffer,
+    .bonk :: geng.audio.Buffer,
     .earth_angel :: geng.audio.Buffer,
 };
 
@@ -62,6 +63,7 @@ impl Assets as module = (
                 .disconnected = Model.load("assets/road/disconnected"),
             },
             .honk = geng.audio.Buffer.load("assets/honk.mp3"),
+            .bonk = geng.audio.Buffer.load("assets/bonk.mp3"),
             .earth_angel = geng.audio.Buffer.load("assets/earth-angel.wav"),
         }
     );
