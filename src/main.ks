@@ -98,12 +98,10 @@ let options =  {
 	.forward = { 0, 0, -1 },
 };
 
-fmod.run(
-	options,
-    (system) => (
-        geng.run[Game](
-            .title = "Geng Example",
-            .vsync = true,
-        );
-    )
+let sys = fmod.init(options);
+@defer fmod.drop(sys);
+
+geng.run[Game](
+    .title = "Geng Example",
+    .vsync = true,
 );
