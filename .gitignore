@@ -1,6 +1,7 @@
 /.direnv/
 /target/
 /result
+/fmod/
 !/bb.blend
 *.blend
 *.blend[0-9]*

@@ -14,7 +14,7 @@ const lerp = (val :: Float32, target :: Float32, scalar :: Float32) -> Float32 =
 );
 
 const angular_dist = (a :: Angle, b :: Angle) -> Angle => (
-    let mut d :: Float32 = fmod((b.radians - a.radians), (2 * PI));
+    let mut d :: Float32 = fmodf((b.radians - a.radians), (2 * PI));
 
     if d > PI then (
         d = d - 2 * PI
@@ -30,7 +30,7 @@ const abs = (x :: Float32) -> Float32 => (
     @native "fabs(\(x))"
 );
 
-const fmod = (a :: Float32, b :: Float32) -> Float32 => (
+const fmodf = (a :: Float32, b :: Float32) -> Float32 => (
     @native "#include <math.h>";
     @native "fmod(\(a),\(b))"
 );

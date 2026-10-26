@@ -53,13 +53,17 @@ const Game = newtype {
                 if self^.mouse_captured then (
                     self^.time_since_camera_control = 0;
                     let { window_width, window_height } = geng.get_window_size();
+                    let fov = match camera^.fov with (
+                        | :Horizontal fov => fov
+                        | :Vertical fov => fov
+                    );
                     camera^.rotation = Angle.sub(
                         camera^.rotation,
-                        Angle.mul(camera^.fov, delta.0 / window_width),
+                        Angle.mul(fov, delta.0 / window_width),
                     );
                     camera^.attack = Angle.sub(
                         camera^.attack,
-                        Angle.mul(camera^.fov, delta.1 / window_width),
+                        Angle.mul(fov, delta.1 / window_width),
                     );
                 );
             )
@@ -87,7 +91,19 @@ const Game = newtype {
     ),
 });
 
-geng.run[Game](
-    .title = "Geng Example",
-    .vsync = true,
+let options =  {
+	.max_channels = 512,
+	.handedness = :Right,
+	.up = { 0, 1, 0 },
+	.forward = { 0, 0, -1 },
+};
+
+fmod.run(
+	options,
+    (system) => (
+        geng.run[Game](
+            .title = "Geng Example",
+            .vsync = true,
+        );
+    )
 );

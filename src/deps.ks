@@ -8,3 +8,12 @@ use (
     );
     import (&geng_lib_path |> as_str)
 ).*;
+
+const fmod = (
+    const fmod_lib_path = (
+        let fmod_path = std.sys.get_env("FMOD_KS_PATH")
+            |> Option.unwrap();
+        format!("file://\(fmod_path)/src/_lib.ks")
+    );
+    import (&fmod_lib_path |> as_str)
+);

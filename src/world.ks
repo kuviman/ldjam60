@@ -61,7 +61,7 @@ impl World as module = (
             .distance = 5,
             .rotation = angle,
             .attack = Angle.from_degrees(10),
-            .fov = Angle.from_degrees(90),
+            .fov = :Horizontal Angle.from_degrees(90),
         },
         .camera_rotation = angle,
         .car = Car.new(spawn),
