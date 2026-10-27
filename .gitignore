@@ -2,6 +2,7 @@
 /target/
 /result
 /fmod/
+/fmod-web/
 !/bb.blend
 *.blend
 *.blend[0-9]*

@@ -29,6 +29,9 @@
           shellHook = ''
             export FMOD_SDK="''${FMOD_SDK:-$PWD/fmod}"
             export CFLAGS="$CFLAGS ${pkgs.lib.concatStringsSep " " (fmod-ks.cflags { sdk = "$FMOD_SDK"; })}"
+
+            export FMOD_WEB_SDK="''${FMOD_WEB_SDK:-$PWD/fmod-web}"
+            export EMCC_FLAGS="$EMCC_FLAGS ${pkgs.lib.concatStringsSep " " (fmod-ks.webCflags { sdk = "$FMOD_WEB_SDK"; })}"
           '';
         };
       }

@@ -162,14 +162,15 @@
       "inputs": {
         "flake-parts": "flake-parts",
         "kast": "kast",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_2",
+        "nixpkgs-25-11": "nixpkgs-25-11"
       },
       "locked": {
-        "lastModified": 1792998576,
-        "narHash": "sha256-fwgdN7fZTZ8CTUX/uvk0pvdofhojYAaHWHSMeMksu7o=",
+        "lastModified": 1793076861,
+        "narHash": "sha256-jOlbGReYheZD+w+NvTBwpqhxEYGssahXs0Lb2041dLY=",
         "owner": "vesdev",
         "repo": "fmod-ks",
-        "rev": "63ee0e9b333295e390c67a74ff6704aff1c3cd1f",
+        "rev": "fe23556379a23b6a37fc5f03cb3942b5f9f6bb7a",
         "type": "github"
       },
       "original": {
@@ -184,14 +185,14 @@
         "kast": "kast_2",
         "nix-filter": "nix-filter_3",
         "nixpkgs": "nixpkgs_4",
-        "nixpkgs-25-11": "nixpkgs-25-11"
+        "nixpkgs-25-11": "nixpkgs-25-11_2"
       },
       "locked": {
-        "lastModified": 1792996941,
-        "narHash": "sha256-SP7xGadzP7hIoQCXl0ESYNrBIcDCa+LryxMdbPWz7Eg=",
+        "lastModified": 1793078726,
+        "narHash": "sha256-UNyzbfBLpJ1Q50zb0+j6X6xmSgzwvA/RvDYopDEawXI=",
         "ref": "refs/heads/main",
-        "rev": "a1c2a53ffaf440cddd78b5cd2b0a381350944596",
-        "revCount": 16,
+        "rev": "91851e5871587f93f0d0138eef782691b474d206",
+        "revCount": 18,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/kast-lang/geng"
@@ -342,6 +343,21 @@
       }
     },
     "nixpkgs-25-11": {
+      "locked": {
+        "lastModified": 1782847189,
+        "narHash": "sha256-twXPFqFsrrY5r28Zh7Homgcp2gUMBgQ6WDS98Q/3xFI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b6018f87da91d19d0ab4cf979885689b469cdd41",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixos-25.11",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs-25-11_2": {
       "locked": {
         "lastModified": 1782847189,
         "narHash": "sha256-twXPFqFsrrY5r28Zh7Homgcp2gUMBgQ6WDS98Q/3xFI=",
