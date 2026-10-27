@@ -22,8 +22,8 @@ const Car = newtype {
     .pickups :: ArrayList.t[Pickup],
     .stun_timer :: Float32,
     .victory :: Bool,
-    .drifting_sfx :: geng.audio.Effect,
-    .vroom_sfx :: geng.audio.Effect,
+    .drifting_sfx :: fmod.event.EventInstance,
+    .vroom_sfx :: fmod.event.EventInstance,
     .drifting_vol :: Float32,
     .vroom_vol :: Float32,
 };
@@ -32,11 +32,6 @@ impl Car as module = (
 	module:
 	
 	const new = (pos :: Vec2) -> Car => (
-        let options :: geng.audio.PlayOptions = {
-            .@"loop" = true,
-            .volume = 0,
-        };
-
 	{
 		.prev_pos = pos,
 		.pos = pos,
@@ -52,8 +47,8 @@ impl Car as module = (
         .stun_timer = 0,
         .victory = false,
         .has_moved = false,
-    	.drifting_sfx = geng.audio.play_with(&(@current Assets.Ctx)^.drifting, options),
-        .vroom_sfx = geng.audio.play_with(&(@current Assets.Ctx)^.vroom, options),
+    	.drifting_sfx = start_sound("event:/drifting", 1),
+        .vroom_sfx = start_sound("event:/vroom", 1),
         .drifting_vol = 0,
         .vroom_vol = 0,
 	});
@@ -128,8 +123,8 @@ impl Car as module = (
 			self^.vroom_vol = lerp(self^.vroom_vol, 0, 0.25);
 		);
 
-		geng.audio.Effect.set_volume(self^.drifting_sfx, min(1.2, 3.0*self^.drifting_vol));
-		geng.audio.Effect.set_volume(self^.vroom_sfx, min(1.2, 1.0*self^.vroom_vol));
+		fmod.event.set_parameter(self^.drifting_sfx, "drift", min(1.0, 4.0*self^.drifting_vol));
+		fmod.event.set_parameter(self^.vroom_sfx, "gas", min(1.0, self^.vroom_vol));
 
         let drift = (Vec2.dot(self^.velocity, self^.facing));
 		self^.turn.radians += steer * steer_speed * drift; 
@@ -152,11 +147,7 @@ impl Car as module = (
 					self^.stun_timer > 0; 			
 				);
 
-		        let options :: geng.audio.PlayOptions = {
-		            .@"loop" = false,
-		            .volume = 0.5,
-		        };
-		        geng.audio.play_with(&(@current Assets.Ctx)^.bonk, options);
+		        play_sound("event:/bonk", 0.5);
 		        bonk = true;
 			);
 
@@ -184,11 +175,7 @@ impl Car as module = (
 					self^.stun_timer > 0; 			
 				);
 
-		        let options :: geng.audio.PlayOptions = {
-		            .@"loop" = false,
-		            .volume = 0.75,
-		        };
-		        geng.audio.play_with(&(@current Assets.Ctx)^.bonk, options);
+		        play_sound("event:/bonk", 0.75);
 
 		        bonk = true;
 			);
@@ -244,11 +231,7 @@ impl Car as module = (
 			);
 
 			if result is :Some _ then (
-		        let options :: geng.audio.PlayOptions = {
-		            .@"loop" = false,
-		            .volume = 0.8,
-		        };
-		        geng.audio.play_with(&(@current Assets.Ctx)^.bonk, options);
+		        play_sound("event:/bonk", 0.8);
 			);
 
 			self^.pickup = result;

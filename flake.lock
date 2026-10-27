@@ -166,11 +166,11 @@
         "nixpkgs-25-11": "nixpkgs-25-11"
       },
       "locked": {
-        "lastModified": 1793076861,
-        "narHash": "sha256-jOlbGReYheZD+w+NvTBwpqhxEYGssahXs0Lb2041dLY=",
+        "lastModified": 1793079988,
+        "narHash": "sha256-3KsFfBWEpQKafpAoJ1o9bPY4I58pGOwUcllkniJPcoU=",
         "owner": "vesdev",
         "repo": "fmod-ks",
-        "rev": "fe23556379a23b6a37fc5f03cb3942b5f9f6bb7a",
+        "rev": "1905509b9ccfb33d72ae9c2987556dd6b794c3e6",
         "type": "github"
       },
       "original": {

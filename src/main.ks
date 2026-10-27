@@ -38,15 +38,14 @@ const Game = newtype {
             self^.tick_timer -= PHYSICS_TPS;
         );
         self^.time_since_camera_control += delta_time;
+
+        fmod.system.update(self^.assets.audio);
     ),
     .handle_event = (self :: &mut Game, event :: geng.Event) => (
         match event with (
             | :KeyPress :Space => (
-                let options :: geng.audio.PlayOptions = {
-                    .@"loop" = false,
-                    .volume = 0.5,
-                };
-                geng.audio.play_with(&self^.assets.honk, options);
+                with Assets.Ctx = &self^.assets;
+                play_sound("event:/honk", 0.5);
             )
             | :MouseMove { .position, .delta } => (
                 let camera = &mut self^.world.camera;
@@ -90,16 +89,6 @@ const Game = newtype {
         World.draw(&mut self^.world, .update_camera = self^.time_since_camera_control > 2.5, alpha);
     ),
 });
-
-let options =  {
-	.max_channels = 512,
-	.handedness = :Right,
-	.up = { 0, 1, 0 },
-	.forward = { 0, 0, -1 },
-};
-
-let sys = fmod.init(options);
-@defer fmod.drop(sys);
 
 geng.run[Game](
     .title = "Geng Example",

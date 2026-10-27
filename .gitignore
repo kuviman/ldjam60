@@ -7,3 +7,8 @@
 *.blend
 *.blend[0-9]*
 *.exe
+
+# fmod stuff
+sound/.cache
+sound/.user
+sound/.unsaved

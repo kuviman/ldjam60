@@ -35,12 +35,7 @@ const Assets = newtype {
         .connected :: Model.t,
         .disconnected :: Model.t,
     },
-    .honk :: geng.audio.Buffer,
-    .bonk :: geng.audio.Buffer,
-    .earth_angel :: geng.audio.Buffer,
-    .drifting :: geng.audio.Buffer,
-    .vroom :: geng.audio.Buffer,
-    .thud :: geng.audio.Buffer,
+    .audio :: fmod.system.System,
 };
 
 impl Assets as module = (
@@ -49,6 +44,16 @@ impl Assets as module = (
     const Ctx = @context type (&Assets);
 
     const load = () -> Assets => (
+        let audio = fmod.init({
+            .max_channels = 512,
+            .handedness = :Right,
+            .up = { 0, 1, 0 },
+            .forward = { 0, 0, -1 },
+        });
+
+        fmod.bank.load(audio, "assets/banks/Master.bank");
+        fmod.bank.load(audio, "assets/banks/Master.strings.bank");
+
         {
             .hand = Model.load("assets/hand"),
             .finish = Model.load("assets/finish"),
@@ -67,12 +72,7 @@ impl Assets as module = (
                 .connected = Model.load("assets/road/connected"),
                 .disconnected = Model.load("assets/road/disconnected"),
             },
-            .honk = geng.audio.Buffer.load("assets/honk.mp3"),
-            .bonk = geng.audio.Buffer.load("assets/bonk.mp3"),
-            .earth_angel = geng.audio.Buffer.load("assets/earth-angel.wav"),
-            .drifting = geng.audio.Buffer.load("assets/drifting.wav"),
-            .vroom = geng.audio.Buffer.load("assets/vroom.wav"),
-            .thud = geng.audio.Buffer.load("assets/thud.wav"),
+            .audio,
         }
     );
 );

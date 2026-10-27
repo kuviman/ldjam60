@@ -1,4 +1,5 @@
 use (import "./deps.ks").*;
+use (import "./assets.ks").*;
 
 module:
 
@@ -41,5 +42,25 @@ const floor = (x :: Float32) -> Float32 => (
 );
 
 const srand = () => (
-	@native "srand(time(NULL))";	
+	@native "srand(time(NULL))";
+);
+
+const play_sound = (id :: &str, volume :: Float32) => (
+	let audio = (@current Assets.Ctx)^.audio;
+	let instance = fmod.event.create_instance(fmod.event.get(audio, id));
+
+	fmod.event.set_volume(instance, volume);
+
+	fmod.event.start(instance);
+	fmod.event.release(instance);
+);
+
+const start_sound = (id :: &str, volume :: Float32) -> fmod.event.EventInstance => (
+	let audio = (@current Assets.Ctx)^.audio;
+	let instance = fmod.event.create_instance(fmod.event.get(audio, id));
+
+	fmod.event.set_volume(instance, volume);
+
+	fmod.event.start(instance);
+	instance
 );

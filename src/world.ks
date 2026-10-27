@@ -49,12 +49,7 @@ impl World as module = (
 	    	Int32_to_Float32(map.height)/2 * map.scale,
 	    };
 
-        let options :: geng.audio.PlayOptions = {
-            .@"loop" = true,
-            .volume = 0.75,
-        };
-
-        geng.audio.play_with(&(@current Assets.Ctx)^.earth_angel, options);
+        play_sound("event:/earth_angel", 0.75);
 	{
         .camera = {
             .position = { 0, 0, 0 },
