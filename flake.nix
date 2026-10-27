@@ -32,8 +32,6 @@
 
             export FMOD_WEB_SDK="''${FMOD_WEB_SDK:-$PWD/fmod-web}"
             export EMCC_FLAGS="$EMCC_FLAGS ${pkgs.lib.concatStringsSep " " (fmod-ks.webCflags { sdk = "$FMOD_WEB_SDK"; })}"
-            # fmod docs JEBAITED
-            export EMCC_FLAGS="$EMCC_FLAGS -sASYNCIFY=0"
           '';
         };
       }
