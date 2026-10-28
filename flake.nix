@@ -21,16 +21,17 @@
             pkgs.just
             pkgs.caddy
             pkgs.butler
+            inputs.fmod-ks.packages.${system}.get-fmod
           ];
 
           LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath fmod-ks.runtimeLibs;
           FMOD_KS_PATH = "${fmod-ks}";
 
           shellHook = ''
-            export FMOD_SDK="''${FMOD_SDK:-$PWD/fmod}"
+            export FMOD_SDK="''${FMOD_SDK:-$PWD/fmod/linux}"
             export CFLAGS="$CFLAGS ${pkgs.lib.concatStringsSep " " (fmod-ks.cflags { sdk = "$FMOD_SDK"; })}"
 
-            export FMOD_WEB_SDK="''${FMOD_WEB_SDK:-$PWD/fmod-web}"
+            export FMOD_WEB_SDK="''${FMOD_WEB_SDK:-$PWD/fmod/html5}"
             export EMCC_FLAGS="$EMCC_FLAGS ${pkgs.lib.concatStringsSep " " (fmod-ks.webCflags { sdk = "$FMOD_WEB_SDK"; })}"
           '';
         };
